@@ -4,22 +4,26 @@ import com.namu.dimgame.entity.DimGame
 import com.namu.namulibrary.schedular.SchedulerManager
 import org.bukkit.Bukkit
 
-class MiniGameScheduler(private val dimGame: DimGame) : SchedulerManager() {
+class MiniGameScheduler(
+    val gameName: String,
+    val onStart: () -> Unit,
+    val onFinish: () -> Unit
+) : SchedulerManager() {
 
     var countDown = 3
 
     override fun doing() {
         Bukkit.getOnlinePlayers().forEach {
-            it.sendTitle(countDown.toString(), "", 10, 20, 10)
+            it.sendTitle(gameName, countDown.toString() + "초 뒤 시작", 10, 20, 10)
         }
         countDown -= 1
     }
 
     override fun finished() {
-        dimGame.onStart()
+        onFinish.invoke()
     }
 
     override fun started() {
-        dimGame.onPrepare()
+        onStart.invoke()
     }
 }

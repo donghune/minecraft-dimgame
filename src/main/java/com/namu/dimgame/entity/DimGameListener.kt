@@ -4,9 +4,8 @@ import org.bukkit.entity.Player
 
 interface DimGameListener {
 
-    fun onPrepare()
     fun onStart()
     fun onStop(rank: List<Player>)
-    fun onChangedPlayerState(player: Player)
+    fun onChangedPlayerState(player: Player, playerState: PlayerState)
 
 }

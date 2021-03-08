@@ -3,6 +3,7 @@ package com.namu.dimgame
 import com.namu.dimgame.entity.DimGame
 import com.namu.dimgame.entity.GameState
 import com.namu.dimgame.game.Spleef
+import com.namu.dimgame.schedular.MiniGameScheduler
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Location
@@ -18,9 +19,9 @@ object DimGameManager : Listener {
     private val LOBBY_LOCATION: Location = Location(Bukkit.getWorld("world"), 232.0, 86.0, 262.0)
     private const val MAX_ROUND = 1
     private val LOADED_GAME_LIST = listOf<DimGame>(
-            Spleef(),
-            Spleef(),
-            Spleef()
+        Spleef(),
+        Spleef(),
+        Spleef()
     )
 
     private var currentRound: Int = 0
@@ -33,6 +34,8 @@ object DimGameManager : Listener {
     }
 
     fun startGame(): Boolean {
+
+        currentRound = 0
 
         if (gameState == GameState.PLAYING || gameState == GameState.NEXT_WAITING) {
             return false
@@ -75,15 +78,24 @@ object DimGameManager : Listener {
         val dimGame = selectedGameList[currentRound]
 
         gameState = GameState.PLAYING
-        dimGame.startMiniGame(
-                participationPlayerList = participationPlayerList,
-                observerPlayerList = observerPlayerList,
-                onMiniGameStopCallback = {
-                    Bukkit.getOnlinePlayers().forEach { it.teleport(LOBBY_LOCATION) }
-                    executeMiniGameProcess()
-                }
-        )
-        currentRound++
+
+        MiniGameScheduler(
+            gameName = selectedGameList[currentRound].name,
+            onStart = {
+
+            },
+            onFinish = {
+                dimGame.startMiniGame(
+                    participationPlayerList = participationPlayerList,
+                    observerPlayerList = observerPlayerList,
+                    onMiniGameStopCallback = {
+                        Bukkit.getOnlinePlayers().forEach { it.teleport(LOBBY_LOCATION) }
+                        executeMiniGameProcess()
+                    }
+                )
+                currentRound++
+            }
+        ).runSecond(1, 3)
     }
 
     fun addObserver(player: Player) {

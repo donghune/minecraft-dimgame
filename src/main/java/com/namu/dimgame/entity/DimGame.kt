@@ -27,19 +27,18 @@ abstract class DimGame : Listener, DimGameListener {
     abstract val defaultItems: List<ItemStack>
     abstract val gameItems: List<ItemStack>
 
-    var miniGameState : MiniGameState = MiniGameState.WAITING
+    var miniGameState: MiniGameState = MiniGameState.WAITING
     var observerPlayerList: List<Player> = listOf()
     var participationPlayerList: List<Player> = listOf()
     private val stateOfPlayer: MutableMap<UUID, PlayerState> = mutableMapOf()
 
-    private lateinit var miniGameScheduler: MiniGameScheduler
     private lateinit var mapScheduler: MapScheduler
     private lateinit var onMiniGameStopCallback: () -> Unit
 
     fun startMiniGame(
-            participationPlayerList: List<Player>,
-            observerPlayerList: List<Player>,
-            onMiniGameStopCallback: () -> Unit = {}
+        participationPlayerList: List<Player>,
+        observerPlayerList: List<Player>,
+        onMiniGameStopCallback: () -> Unit = {}
     ) {
         this.onMiniGameStopCallback = onMiniGameStopCallback
         this.participationPlayerList = participationPlayerList
@@ -52,7 +51,7 @@ abstract class DimGame : Listener, DimGameListener {
             it.gameMode = GameMode.SURVIVAL
             it.inventory.clear()
             it.inventory.addItem(*defaultItems.toTypedArray())
-            stateOfPlayer[it.uniqueId] = PlayerState.ALIVE
+            setPlayerState(it, PlayerState.ALIVE)
         }
 
         this.observerPlayerList.forEach {
@@ -60,27 +59,26 @@ abstract class DimGame : Listener, DimGameListener {
             it.gameMode = GameMode.SPECTATOR
         }
 
-        miniGameScheduler = MiniGameScheduler(this)
-        miniGameScheduler.runSecond(1, 3)
-
         mapScheduler = MapScheduler(this)
         mapScheduler.runTick(1, Int.MAX_VALUE)
 
         miniGameState = MiniGameState.RUNNING
+
+        onStart()
     }
 
     fun stopMiniGame(rank: List<Player>) {
-        // 각 게임별 개인 스탑 처리
-        onStop(rank)
 
         miniGameState = MiniGameState.WAITING
 
+        // 각종 스케쥴러 스탑
+        mapScheduler.stopScheduler()
+
+        // 각 게임별 개인 스탑 처리
+        onStop(rank)
+
         // 이벤트 등록 해지
         gameOption.unregister()
-
-        // 각종 스케쥴러 스탑
-        miniGameScheduler.stopScheduler()
-        mapScheduler.stopScheduler()
 
         // 게임모드 변경 및 로비로 텔레포트
         Bukkit.getOnlinePlayers().forEach {
@@ -93,7 +91,7 @@ abstract class DimGame : Listener, DimGameListener {
 
     fun setPlayerState(player: Player, playerState: PlayerState) {
         stateOfPlayer[player.uniqueId] = playerState
-        onChangedPlayerState(player)
+        onChangedPlayerState(player, playerState)
     }
 
     fun getPlayerState(player: Player): PlayerState {

@@ -30,7 +30,7 @@ configurations {
 }
 
 dependencies {
-    compileOnly 'com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT'
+    implementation 'com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
