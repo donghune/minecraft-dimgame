@@ -1,6 +1,5 @@
 package com.namu.dimgame.entity
 
-import com.namu.namulibrary.extension.sendDebugMessage
 import org.bukkit.Location
 import org.bukkit.entity.Player
 

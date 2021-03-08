@@ -1,6 +1,7 @@
 package com.namu.dimgame.schedular
 
 import com.namu.dimgame.entity.DimGame
+import com.namu.dimgame.entity.PlayerState
 import com.namu.namulibrary.schedular.SchedulerManager
 
 class MapScheduler(val dimGame: DimGame) : SchedulerManager() {
@@ -10,7 +11,7 @@ class MapScheduler(val dimGame: DimGame) : SchedulerManager() {
                 return@forEach
             }
 
-            dimGame.setPlayerState(it, DimGame.PlayerState.DIE)
+            dimGame.setPlayerState(it, PlayerState.DIE)
         }
     }
 

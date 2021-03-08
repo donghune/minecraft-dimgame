@@ -1,9 +1,11 @@
 package com.namu.dimgame.entity
 
+import com.namu.dimgame.plugin
 import com.namu.dimgame.schedular.MapScheduler
 import com.namu.dimgame.schedular.MiniGameScheduler
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
+import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -12,63 +14,69 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.inventory.ItemStack
+import java.io.File
 import java.util.*
 
-abstract class DimGame : Listener {
+abstract class DimGame : Listener, DimGameListener {
 
     abstract val name: String
     abstract val description: String
     abstract val gameType: GameType
     abstract val mapInfo: GameMap
-
-    abstract val isBlockPlace: Boolean
-    abstract val isBlockBreak: Boolean
-    abstract val isCraft: Boolean
-    abstract val isAttack: Boolean
-
+    abstract val gameOption: DimGameOption
     abstract val defaultItems: List<ItemStack>
     abstract val gameItems: List<ItemStack>
 
-    abstract fun onPrepare()
-    abstract fun onStart()
-    abstract fun onStop(rank: List<Player>)
-    abstract fun onChangedPlayerState(player: Player)
-
-    lateinit var participationPlayerList: List<Player>
+    var miniGameState : MiniGameState = MiniGameState.WAITING
+    var observerPlayerList: List<Player> = listOf()
+    var participationPlayerList: List<Player> = listOf()
     private val stateOfPlayer: MutableMap<UUID, PlayerState> = mutableMapOf()
 
-    private lateinit var miniGameScheduler : MiniGameScheduler
-    private lateinit var mapScheduler : MapScheduler
-    private lateinit var onMiniGameStopCallback : () -> Unit
+    private lateinit var miniGameScheduler: MiniGameScheduler
+    private lateinit var mapScheduler: MapScheduler
+    private lateinit var onMiniGameStopCallback: () -> Unit
 
-    fun startMiniGame(participationPlayerList: List<Player>, onMiniGameStopCallback : () -> Unit = {}) {
+    fun startMiniGame(
+            participationPlayerList: List<Player>,
+            observerPlayerList: List<Player>,
+            onMiniGameStopCallback: () -> Unit = {}
+    ) {
         this.onMiniGameStopCallback = onMiniGameStopCallback
         this.participationPlayerList = participationPlayerList
+        this.observerPlayerList = observerPlayerList
+
+        this.gameOption.register()
 
         this.participationPlayerList.forEach {
             it.teleport(mapInfo.respawn)
+            it.gameMode = GameMode.SURVIVAL
             it.inventory.clear()
             it.inventory.addItem(*defaultItems.toTypedArray())
-            it.gameMode = GameMode.SURVIVAL
             stateOfPlayer[it.uniqueId] = PlayerState.ALIVE
         }
 
-        miniGameScheduler = MiniGameScheduler(this)
-        mapScheduler = MapScheduler(this)
+        this.observerPlayerList.forEach {
+            it.teleport(mapInfo.respawn)
+            it.gameMode = GameMode.SPECTATOR
+        }
 
+        miniGameScheduler = MiniGameScheduler(this)
         miniGameScheduler.runSecond(1, 3)
+
+        mapScheduler = MapScheduler(this)
         mapScheduler.runTick(1, Int.MAX_VALUE)
+
+        miniGameState = MiniGameState.RUNNING
     }
 
     fun stopMiniGame(rank: List<Player>) {
         // 각 게임별 개인 스탑 처리
         onStop(rank)
 
+        miniGameState = MiniGameState.WAITING
+
         // 이벤트 등록 해지
-        BlockPlaceEvent.getHandlerList().unregister(this)
-        BlockBreakEvent.getHandlerList().unregister(this)
-        EntityDamageByEntityEvent.getHandlerList().unregister(this)
-        CraftItemEvent.getHandlerList().unregister(this)
+        gameOption.unregister()
 
         // 각종 스케쥴러 스탑
         miniGameScheduler.stopScheduler()
@@ -93,54 +101,6 @@ abstract class DimGame : Listener {
             stateOfPlayer[player.uniqueId] = PlayerState.ALIVE
         }
         return stateOfPlayer[player.uniqueId]!!
-    }
-
-    @EventHandler
-    fun onOptionalBlockPlaceEvent(event: BlockPlaceEvent) {
-        if (isBlockPlace) {
-            return
-        }
-
-        event.isCancelled = true
-    }
-
-    @EventHandler
-    fun onOptionalBlockBreakEvent(event: BlockBreakEvent) {
-        if (isBlockBreak) {
-            return
-        }
-
-        event.isCancelled = true
-    }
-
-    @EventHandler
-    fun onOptionalEntityDamageByEntityEvent(event: EntityDamageByEntityEvent) {
-        if (event.damager !is Player) {
-            return
-        }
-
-        if (isAttack) {
-            return
-        }
-
-        event.isCancelled = true
-    }
-
-    @EventHandler
-    fun onOptionalCraftItemEvent(event: CraftItemEvent) {
-        if (isCraft) {
-            return
-        }
-
-        event.isCancelled = true
-    }
-
-    enum class PlayerState {
-        ALIVE, DIE;
-    }
-
-    enum class MiniGameState {
-        WAITING, RUNNING
     }
 
 }

@@ -1,7 +1,8 @@
 package com.namu.dimgame
 
 import com.namu.dimgame.entity.DimGame
-import com.namu.dimgame.game.Splife
+import com.namu.dimgame.entity.GameState
+import com.namu.dimgame.game.Spleef
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Location
@@ -17,9 +18,9 @@ object DimGameManager : Listener {
     private val LOBBY_LOCATION: Location = Location(Bukkit.getWorld("world"), 232.0, 86.0, 262.0)
     private const val MAX_ROUND = 1
     private val LOADED_GAME_LIST = listOf<DimGame>(
-        Splife(),
-        Splife(),
-        Splife()
+            Spleef(),
+            Spleef(),
+            Spleef()
     )
 
     private var currentRound: Int = 0
@@ -32,6 +33,7 @@ object DimGameManager : Listener {
     }
 
     fun startGame(): Boolean {
+
         if (gameState == GameState.PLAYING || gameState == GameState.NEXT_WAITING) {
             return false
         }
@@ -44,15 +46,17 @@ object DimGameManager : Listener {
     }
 
     fun stopGame(): Boolean {
+
         if (gameState == GameState.NOT_PLAYING) {
             return false
         }
 
         gameState = GameState.NOT_PLAYING
+
         Bukkit.getOnlinePlayers().forEach {
-            it.inventory.clear()
             it.gameMode = GameMode.ADVENTURE
             it.teleport(LOBBY_LOCATION)
+            it.inventory.clear()
         }
 
         return true
@@ -65,17 +69,19 @@ object DimGameManager : Listener {
             stopGame()
             return
         }
-h
+
         val participationPlayerList = Bukkit.getOnlinePlayers().filter(::isParticipation).toList()
+        val observerPlayerList = Bukkit.getOnlinePlayers().filter(::isObserver).toList()
         val dimGame = selectedGameList[currentRound]
 
         gameState = GameState.PLAYING
         dimGame.startMiniGame(
-            participationPlayerList = participationPlayerList,
-            onMiniGameStopCallback = {
-                Bukkit.getOnlinePlayers().forEach { it.teleport(LOBBY_LOCATION) }
-                executeMiniGameProcess()
-            }
+                participationPlayerList = participationPlayerList,
+                observerPlayerList = observerPlayerList,
+                onMiniGameStopCallback = {
+                    Bukkit.getOnlinePlayers().forEach { it.teleport(LOBBY_LOCATION) }
+                    executeMiniGameProcess()
+                }
         )
         currentRound++
     }
@@ -92,7 +98,7 @@ h
         return isObserverByUUID[player.uniqueId] ?: false
     }
 
-    fun isParticipation(player: Player): Boolean {
+    private fun isParticipation(player: Player): Boolean {
         return isObserverByUUID[player.uniqueId] == null
     }
 
@@ -101,10 +107,6 @@ h
         if (gameState != GameState.PLAYING) {
             event.isCancelled = true
         }
-    }
-
-    enum class GameState {
-        NOT_PLAYING, PLAYING, NEXT_WAITING,
     }
 
 }
