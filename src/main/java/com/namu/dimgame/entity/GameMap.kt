@@ -8,14 +8,14 @@ data class GameMap(
     val pos2: Location,
     val respawn: Location
 ) {
-    private val startX = pos1.blockX.coerceAtMost(pos2.blockX)
-    private val endX = pos1.blockX.coerceAtLeast(pos2.blockX)
+    val startX = pos1.blockX.coerceAtMost(pos2.blockX)
+    val endX = pos1.blockX.coerceAtLeast(pos2.blockX)
 
-    private val startY = pos1.blockY.coerceAtMost(pos2.blockY)
-    private val endY = pos1.blockY.coerceAtLeast(pos2.blockY)
+    val startY = pos1.blockY.coerceAtMost(pos2.blockY)
+    val endY = pos1.blockY.coerceAtLeast(pos2.blockY)
 
-    private val startZ = pos1.blockZ.coerceAtMost(pos2.blockZ)
-    private val endZ = pos1.blockZ.coerceAtLeast(pos2.blockZ)
+    val startZ = pos1.blockZ.coerceAtMost(pos2.blockZ)
+    val endZ = pos1.blockZ.coerceAtLeast(pos2.blockZ)
 
     fun isIn(player: Player): Boolean {
         if (player.location.blockX in startX..endX) {

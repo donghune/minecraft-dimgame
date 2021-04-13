@@ -1,14 +1,19 @@
 package com.namu.dimgame
 
-import com.namu.namulibrary.command.argument.player
-import com.namu.namulibrary.command.kommand
+import com.github.noonmaru.kommand.argument.player
+import com.github.noonmaru.kommand.argument.string
+import com.github.noonmaru.kommand.kommand
 import com.namu.namulibrary.extension.sendErrorMessage
 import com.namu.namulibrary.extension.sendInfoMessage
 import com.namu.namulibrary.schedular.SchedulerManager
+import org.bukkit.*
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.plugin.java.JavaPlugin
 
-lateinit var plugin : JavaPlugin
+lateinit var plugin: JavaPlugin
 
 class DimGamePlugin : JavaPlugin() {
     override fun onEnable() {
@@ -16,8 +21,37 @@ class DimGamePlugin : JavaPlugin() {
 
         SchedulerManager.initializeSchedulerManager(this)
 
+        Bukkit.getPluginManager().registerEvents(object : Listener {
+            @EventHandler
+            fun onCraftItemEvent(event: CraftItemEvent) {
+                Bukkit.broadcastMessage(
+                    "%s 님이 %s를 제작하였습니다.".format(
+                        event.whoClicked.name,
+                        event.currentItem?.type.toString()
+                    )
+                )
+            }
+        }, this)
+
+        Bukkit.getOnlinePlayers().forEach {
+            it.activePotionEffects.forEach { potionEffect ->
+                it.removePotionEffect(potionEffect.type)
+            }
+        }
+
         kommand {
             register("dimgame") {
+                then("test") {
+                    then("particle" to string()) {
+                        then("sound" to string()) {
+                            executes {
+                                val player = it.sender as Player
+
+
+                            }
+                        }
+                    }
+                }
                 then("start") {
                     executes {
                         val result = DimGameManager.startGame()
@@ -30,7 +64,7 @@ class DimGamePlugin : JavaPlugin() {
                 }
                 then("stop") {
                     executes {
-                        val result = DimGameManager.stopGame()
+                        val result = DimGameManager.stopGame(true)
 
                         if (!result) {
                             it.sender.sendErrorMessage("게임이 진행중이지 않습니다.")

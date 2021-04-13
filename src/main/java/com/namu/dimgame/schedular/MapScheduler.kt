@@ -4,12 +4,11 @@ import com.namu.dimgame.entity.DimGame
 import com.namu.dimgame.entity.MiniGameState
 import com.namu.dimgame.entity.PlayerState
 import com.namu.namulibrary.schedular.SchedulerManager
-import org.bukkit.Bukkit
 
-class MapScheduler(val dimGame: DimGame) : SchedulerManager() {
-    override fun doing() {
+fun mapScheduler(dimGame: DimGame) = SchedulerManager {
+    doing {
         dimGame.participationPlayerList.forEach {
-            if (dimGame.mapInfo.isIn(it)) {
+            if (dimGame.mapLocations.isIn(it)) {
                 return@forEach
             }
 
@@ -19,11 +18,5 @@ class MapScheduler(val dimGame: DimGame) : SchedulerManager() {
 
             dimGame.setPlayerState(it, PlayerState.DIE)
         }
-    }
-
-    override fun finished() {
-    }
-
-    override fun started() {
     }
 }

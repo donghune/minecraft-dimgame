@@ -52,6 +52,10 @@ data class DimGameOption(
             return
         }
 
+        if (event.entity !is Player) {
+            return
+        }
+
         if (isAttack) {
             return
         }
