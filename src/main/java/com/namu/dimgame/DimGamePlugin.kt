@@ -3,6 +3,8 @@ package com.namu.dimgame
 import com.github.noonmaru.kommand.argument.player
 import com.github.noonmaru.kommand.argument.string
 import com.github.noonmaru.kommand.kommand
+import com.namu.dimgame.game.DimGameManager
+import com.namu.dimgame.game.ParticipantStatus
 import com.namu.namulibrary.extension.sendErrorMessage
 import com.namu.namulibrary.extension.sendInfoMessage
 import com.namu.namulibrary.schedular.SchedulerManager
@@ -54,7 +56,7 @@ class DimGamePlugin : JavaPlugin() {
                 }
                 then("start") {
                     executes {
-                        val result = DimGameManager.startGame()
+                        val result = DimGameManager.start()
 
                         if (!result) {
                             it.sender.sendErrorMessage("이미 게임이 진행중입니다.")
@@ -64,7 +66,7 @@ class DimGamePlugin : JavaPlugin() {
                 }
                 then("stop") {
                     executes {
-                        val result = DimGameManager.stopGame(true)
+                        val result = DimGameManager.forcedTermination()
 
                         if (!result) {
                             it.sender.sendErrorMessage("게임이 진행중이지 않습니다.")
@@ -72,20 +74,23 @@ class DimGamePlugin : JavaPlugin() {
                         }
                     }
                 }
-                then("ob") {
-                    then("player" to player()) {
-                        executes {
-                            val target = it.parseArgument<Player>("player")
-                            if (DimGameManager.isObserver(target)) {
-                                DimGameManager.removeObserver(target)
-                                target.sendInfoMessage("참여자로 설정 되었습니다.")
-                                return@executes
-                            }
-                            DimGameManager.addObserver(target)
-                            target.sendInfoMessage("옵저버로 설정 되었습니다.")
-                        }
-                    }
-                }
+//                then("ob") {
+//                    then("player" to player()) {
+//                        executes {
+//                            val target = it.parseArgument<Player>("player")
+//                            val playerState = DimGameManager.getPlayerGameState(target.uniqueId)
+//
+//                            if (playerState == ParticipantStatus.NONE || playerState == ParticipantStatus.OBSERVER) {
+//                                DimGameManager.setPlayerGameState(target.uniqueId, ParticipantStatus.PARTICIPANT)
+//                                target.sendInfoMessage("참여자로 설정 되었습니다.")
+//                                return@executes
+//                            }
+//
+//                            DimGameManager.setPlayerGameState(target.uniqueId, ParticipantStatus.OBSERVER)
+//                            target.sendInfoMessage("옵저버로 설정 되었습니다.")
+//                        }
+//                    }
+//                }
             }
         }
     }

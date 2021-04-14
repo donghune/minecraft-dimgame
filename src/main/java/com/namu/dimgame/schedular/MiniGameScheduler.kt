@@ -1,6 +1,5 @@
 package com.namu.dimgame.schedular
 
-import com.namu.dimgame.entity.DimGame
 import com.namu.namulibrary.schedular.SchedulerManager
 import org.bukkit.Bukkit
 
