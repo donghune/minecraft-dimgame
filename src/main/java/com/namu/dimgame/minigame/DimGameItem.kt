@@ -12,22 +12,22 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import java.util.*
 
-abstract class DimGameItem<T> : Listener {
+abstract class DimGameItem<ID> : Listener {
 
-    private val idByAction = mutableMapOf<T, (PlayerInteractEvent) -> Unit>()
-    private val idByItem = mutableMapOf<T, ItemStack>()
-    private val uuidById = mutableMapOf<UUID, T>()
+    private val idByAction = mutableMapOf<ID, (PlayerInteractEvent) -> Unit>()
+    private val idByItem = mutableMapOf<ID, ItemStack>()
+    private val uuidById = mutableMapOf<UUID, ID>()
 
     fun getItemList(): List<ItemStack> {
         return idByItem.values.toList()
     }
 
-    fun getItemById(id: T): ItemStack {
+    fun getItemById(id: ID): ItemStack {
         return idByItem[id]!!
     }
 
     fun ItemStack.registerAction(
-        itemId: T,
+        itemId: ID,
         action: (PlayerInteractEvent) -> Unit = {}
     ) {
         val uuid = UUID.randomUUID()

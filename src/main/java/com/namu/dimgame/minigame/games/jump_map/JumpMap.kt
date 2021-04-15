@@ -17,7 +17,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.*
 
-class JumpMap : DimGame() {
+class JumpMap : DimGame<JumpMapItem, JumpMapScheduler>() {
 
     private val goalBlockLocation = Location(Bukkit.getWorld("world"), 267.0, 97.0, 110.0)
 
@@ -25,64 +25,30 @@ class JumpMap : DimGame() {
     override val description: String = "누구보다 빨리 맵의 끝에 있는 에메랄드 블럭을 터치하세요!"
 
     override val mapLocations: DimGameMap = DimGameMap(
-        Location(Bukkit.getWorld("world"), 256.0, 112.0, 213.0),
-        Location(Bukkit.getWorld("world"), 279.0, 89.0, 105.0),
-        Location(Bukkit.getWorld("world"), 267.0, 96.0, 208.0)
+            Location(Bukkit.getWorld("world"), 256.0, 112.0, 213.0),
+            Location(Bukkit.getWorld("world"), 279.0, 89.0, 105.0),
+            Location(Bukkit.getWorld("world"), 267.0, 96.0, 208.0)
     )
 
     override val gameOption: DimGameOption = DimGameOption(
-        isBlockPlace = false,
-        isBlockBreak = false,
-        isCraft = false,
-        isAttack = false,
+            isBlockPlace = false,
+            isBlockBreak = false,
+            isCraft = false,
+            isAttack = false,
     )
 
     override val defaultItems: List<ItemStack> = listOf()
-
-    companion object {
-        private val GAME_ITEM_FLY = ItemBuilder().setMaterial(Material.FEATHER)
-            .setDisplay("날개")
-            .setLore(listOf("공중부양을 5초간 부여합니다."))
-            .build()
-
-
-        private val GAME_ITEM_JUMP = ItemBuilder().setMaterial(Material.RABBIT_FOOT)
-            .setDisplay("점프")
-            .setLore(listOf("점프강화 2를 3초간 부여합니다."))
-            .build()
-
-    }
-
-    private val randomItemScheduler = SchedulerManager {
-        doing {
-            participationPlayerList.forEach {
-                it.inventory.addItem(gameItems.random())
-            }
-        }
-    }
-
+    override val gameItems: JumpMapItem = JumpMapItem()
+    override val gameSchedulers: JumpMapScheduler = JumpMapScheduler(this)
     private val finishedPlayerList = mutableListOf<UUID>()
 
     override fun onStart() {
-        Bukkit.getPluginManager().registerEvents(this, plugin)
-
-        randomItemScheduler.also {
-            it.runSecond(10, Int.MAX_VALUE)
-        }
-
-        registerGameItem(GAME_ITEM_FLY) {
-            val potionEffect = PotionEffect(PotionEffectType.LEVITATION, 20 * 5, 1, true, false)
-            it.player.addPotionEffect(potionEffect)
-        }
-        registerGameItem(GAME_ITEM_JUMP) {
-            val potionEffect = PotionEffect(PotionEffectType.JUMP, 20 * 3, 2, true, false)
-            it.player.addPotionEffect(potionEffect)
-        }
+        gameSchedulers.getScheduler(JumpMapScheduler.Code.RANDOM_ITEM).runSecond(10, Int.MAX_VALUE)
     }
 
     override fun onStop(rank: List<Player>) {
         PlayerInteractEvent.getHandlerList().unregister(this)
-        randomItemScheduler.stopScheduler()
+        gameSchedulers.getScheduler(JumpMapScheduler.Code.RANDOM_ITEM).stopScheduler()
     }
 
     override fun onChangedPlayerState(player: Player, playerState: PlayerStatus) {
@@ -123,22 +89,28 @@ class JumpMap : DimGame() {
         }
 
         block.location.world.playSound(
-            block.location,
-            Sound.ENTITY_FIREWORK_ROCKET_BLAST,
-            1f,
-            1f
+                block.location,
+                Sound.ENTITY_FIREWORK_ROCKET_BLAST,
+                1f,
+                1f
         )
 
         Bukkit.getOnlinePlayers().forEach {
             it.sendInfoMessage("&6${event.player.displayName}&f님이 [&6${finishedPlayerList.size}&f]등으로 도착!".replaceChatColorCode())
         }
 
-        if (finishedPlayerList.size == 3) {
-            Bukkit.getScheduler().runTaskLater(plugin, Runnable {
-                stopGame(finishedPlayerList.map { Bukkit.getPlayer(it)!! }.toList())
-            }, 20L * 2)
+        if (!gameStopCondition()) {
+            return
         }
 
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            stopGame(finishedPlayerList.map { Bukkit.getPlayer(it)!! }.toList())
+        }, 20L * 2)
+
+    }
+
+    override fun gameStopCondition(): Boolean {
+        return finishedPlayerList.size == 3
     }
 
 }

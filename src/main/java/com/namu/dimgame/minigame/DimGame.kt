@@ -15,15 +15,15 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 
-abstract class DimGame<ITEMS : DimGameItem<*>, SCHEDULERS : DimGameScheduler<*>> : Listener {
+abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> : Listener {
 
     abstract val name: String
     abstract val description: String
     abstract val mapLocations: DimGameMap
     abstract val gameOption: DimGameOption
     abstract val defaultItems: List<ItemStack>
-    abstract val gameItems: ITEMS
-    abstract val gameSchedulers: SCHEDULERS
+    abstract val gameItems: ITEM
+    abstract val gameSchedulers: SCHEDULER
 
     var gameStatus: MiniGameStatus = MiniGameStatus.WAITING
     private var observerPlayerList: List<Player> = listOf()
@@ -92,6 +92,7 @@ abstract class DimGame<ITEMS : DimGameItem<*>, SCHEDULERS : DimGameScheduler<*>>
 
         // 각종 스케쥴러 스탑
         mapScheduler.stopScheduler()
+        gameSchedulers.clearScheduler()
 
         // 이벤트 등록 해지
         this.gameOption.unregister()

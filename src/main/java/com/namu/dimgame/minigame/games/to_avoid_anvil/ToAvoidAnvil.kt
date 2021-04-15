@@ -20,28 +20,25 @@ import java.util.*
 import kotlin.random.Random
 import kotlin.random.nextInt
 
-class ToAvoidAnvil : DimGame() {
+class ToAvoidAnvil : DimGame<ToAvoidAnvilItem, ToAvoidAnvilScheduler>() {
     override val name: String = "모루피하기"
     override val description: String = "떨어지는 모루를 피하세요"
 
     override val mapLocations: DimGameMap = DimGameMap(
-        Location(Bukkit.getWorld("world"), 131.0, 103.0, 144.0),
-        Location(Bukkit.getWorld("world"), 105.0, 83.0, 170.0),
-        Location(Bukkit.getWorld("world"), 118.0, 84.0, 157.0),
+            Location(Bukkit.getWorld("world"), 131.0, 103.0, 144.0),
+            Location(Bukkit.getWorld("world"), 105.0, 83.0, 170.0),
+            Location(Bukkit.getWorld("world"), 118.0, 84.0, 157.0),
     )
 
     override val gameOption: DimGameOption = DimGameOption(
-        isBlockPlace = false,
-        isBlockBreak = false,
-        isCraft = false,
-        isAttack = false
+            isBlockPlace = false,
+            isBlockBreak = false,
+            isCraft = false,
+            isAttack = false
     )
+    override val gameItems: ToAvoidAnvilItem = ToAvoidAnvilItem()
+    override val gameSchedulers: ToAvoidAnvilScheduler = ToAvoidAnvilScheduler(this)
     override val defaultItems: List<ItemStack> = emptyList()
-
-    companion object {
-        private val ITEM_JUMP =
-            ItemBuilder().setMaterial(Material.COAL).setDisplay("점프").setLore(listOf("점프강화 2를 1초간 줍니다.")).build()
-    }
 
     override fun onStart() {
         clearMap()
@@ -49,17 +46,7 @@ class ToAvoidAnvil : DimGame() {
             it.teleport(mapLocations.respawn)
             it.gameMode = GameMode.ADVENTURE
         }
-        registerGameItem(ITEM_JUMP) {
-            it.player.addPotionEffect(
-                PotionEffect(
-                    PotionEffectType.JUMP,
-                    20,
-                    1,
-                    false, false, false
-                )
-            )
-        }
-        spawnAnvilSchedulerManager.runSecond(1L, Int.MAX_VALUE)
+        gameSchedulers.getScheduler(ToAvoidAnvilScheduler.Code.MAIN).runSecond(1L, Int.MAX_VALUE)
     }
 
     override fun onStop(rank: List<Player>) {
@@ -68,7 +55,7 @@ class ToAvoidAnvil : DimGame() {
         participationPlayerList.forEach {
             it.gameMode = GameMode.SURVIVAL
         }
-        spawnAnvilSchedulerManager.stopScheduler()
+        gameSchedulers.getScheduler(ToAvoidAnvilScheduler.Code.MAIN).stopScheduler()
     }
 
     private val finishedPlayerList = mutableListOf<UUID>()
@@ -104,8 +91,8 @@ class ToAvoidAnvil : DimGame() {
 
             // player
             val player: Player? = event.block.world.getNearbyEntities(event.block.location, 0.1, 0.1, 0.1)
-                .filter { playerGameStatusManager.getStatus(it.uniqueId) == PlayerStatus.ALIVE }
-                .find { it is Player } as? Player
+                    .filter { playerGameStatusManager.getStatus(it.uniqueId) == PlayerStatus.ALIVE }
+                    .find { it is Player } as? Player
             player?.let { notNullPlayer -> playerGameStatusManager.setStatus(notNullPlayer.uniqueId, PlayerStatus.DIE) }
 
             // change block info
@@ -122,71 +109,21 @@ class ToAvoidAnvil : DimGame() {
         }
     }
 
-    private val spawnAnvilSchedulerManager = SchedulerManager {
-        doing {
-            val timeCycle: Int
-            val anvilCount: Int
-            when (it) {
-                in 0..16 -> {
-                    Bukkit.getOnlinePlayers().forEach { player ->
-                        player.spigot().sendMessage(
-                            ChatMessageType.ACTION_BAR,
-                            net.md_5.bungee.api.chat.TextComponent("하늘에서 모루가 떨어집니다. [$it]")
-                        )
-                    }
-                    timeCycle = 5
-                    anvilCount = 30
-                }
-                in 16..25 -> {
-                    Bukkit.getOnlinePlayers().forEach { player ->
-                        player.spigot().sendMessage(
-                            ChatMessageType.ACTION_BAR,
-                            net.md_5.bungee.api.chat.TextComponent("&7하늘에서 모루가 소나기 같이 떨어집니다. [$it]".replaceChatColorCode())
-                        )
-                    }
-                    timeCycle = 3
-                    anvilCount = 30
-                }
-                in 25..45 -> {
-                    Bukkit.getOnlinePlayers().forEach { player ->
-                        player.spigot().sendMessage(
-                            ChatMessageType.ACTION_BAR,
-                            net.md_5.bungee.api.chat.TextComponent("&b하늘에서 모루가 폭풍같이 떨어집니다. [$it]".replaceChatColorCode())
-                        )
-                    }
-                    timeCycle = 2
-                    anvilCount = 30
-                }
-                else -> {
-                    Bukkit.getOnlinePlayers().forEach { player ->
-                        player.spigot().sendMessage(
-                            ChatMessageType.ACTION_BAR,
-                            net.md_5.bungee.api.chat.TextComponent("&c하늘이 붉게 변하자 모루가 미친듯이 떨어집니다. [$it]".replaceChatColorCode())
-                        )
-                    }
-                    timeCycle = 1
-                    anvilCount = 30
-                }
-            }
-            if (it % timeCycle == 0) {
-                repeat(anvilCount) {
-                    spawnAnvil()
-                }
-            }
-        }
+    override fun gameStopCondition(): Boolean {
+        return true
     }
 
-    private fun spawnAnvil() {
+    internal fun spawnAnvil() {
         val randomLocation = Location(
-            Bukkit.getWorld("world"),
-            Random.nextInt(mapLocations.startX..mapLocations.endX) + 0.5,
-            Random.nextInt(mapLocations.endY, mapLocations.endY + 1).toDouble(),
-            Random.nextInt(mapLocations.startZ..mapLocations.endZ) + 0.5,
+                Bukkit.getWorld("world"),
+                Random.nextInt(mapLocations.startX..mapLocations.endX) + 0.5,
+                Random.nextInt(mapLocations.endY, mapLocations.endY + 1).toDouble(),
+                Random.nextInt(mapLocations.startZ..mapLocations.endZ) + 0.5,
         )
 
         Bukkit.getWorld("world")?.spawnFallingBlock(
-            randomLocation,
-            Material.ANVIL.createBlockData()
+                randomLocation,
+                Material.ANVIL.createBlockData()
         )
     }
 
@@ -194,17 +131,17 @@ class ToAvoidAnvil : DimGame() {
         for (x in mapLocations.startX..mapLocations.endX) {
             for (z in mapLocations.startZ..mapLocations.endZ) {
                 Location(
-                    mapLocations.pos1.world,
-                    x.toDouble(),
-                    mapLocations.startY.toDouble(),
-                    z.toDouble()
+                        mapLocations.pos1.world,
+                        x.toDouble(),
+                        mapLocations.startY.toDouble(),
+                        z.toDouble()
                 ).block.type = Material.LIGHT_GRAY_WOOL
 
                 Location(
-                    mapLocations.pos1.world,
-                    x.toDouble(),
-                    mapLocations.startY.toDouble() + 1,
-                    z.toDouble()
+                        mapLocations.pos1.world,
+                        x.toDouble(),
+                        mapLocations.startY.toDouble() + 1,
+                        z.toDouble()
                 ).block.type = Material.AIR
             }
         }

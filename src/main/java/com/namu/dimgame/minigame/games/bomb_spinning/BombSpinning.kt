@@ -35,8 +35,6 @@ class BombSpinning : DimGame<BombSpinningItems, BombSpinningSchedulers>() {
     private val finishedPlayerList = mutableListOf<UUID>()
 
     override fun onStart() {
-        Bukkit.getPluginManager().registerEvents(this, plugin)
-
         participationPlayerList.forEach {
             it.teleport(mapLocations.respawn)
             it.addPotionEffect(

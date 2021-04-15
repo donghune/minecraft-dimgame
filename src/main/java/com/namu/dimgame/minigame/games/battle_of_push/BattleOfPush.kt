@@ -32,8 +32,6 @@ class BattleOfPush : DimGame<BattleOfPushItem, BattleOfPushScheduler>() {
     private val finishedPlayerList = mutableListOf<UUID>()
 
     override fun onStart() {
-        Bukkit.getPluginManager().registerEvents(this, plugin)
-
         participationPlayerList.forEach {
             it.teleport(
                 mapLocations.respawn.apply {
