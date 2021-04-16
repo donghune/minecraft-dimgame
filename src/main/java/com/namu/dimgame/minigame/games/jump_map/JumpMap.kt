@@ -110,6 +110,9 @@ class JumpMap : DimGame<JumpMapItem, JumpMapScheduler>() {
     }
 
     override fun gameStopCondition(): Boolean {
+        if (participationPlayerList.size < 3) {
+            return finishedPlayerList.size == participationPlayerList.size
+        }
         return finishedPlayerList.size == 3
     }
 

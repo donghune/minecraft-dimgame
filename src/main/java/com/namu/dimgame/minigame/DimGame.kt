@@ -29,7 +29,7 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
     private var observerPlayerList: List<Player> = listOf()
     var participationPlayerList: MutableList<Player> = mutableListOf()
 
-    val playerGameStatusManager = PlayerGameStatusManager()
+    val playerGameStatusManager = PlayerGameStatusManager(this)
     private lateinit var mapScheduler: SchedulerManager
     private lateinit var onMiniGameStopCallback: (List<Player>) -> Unit
 

@@ -31,8 +31,7 @@ abstract class DimGameItem<ID> : Listener {
         action: (PlayerInteractEvent) -> Unit = {}
     ) {
         val uuid = UUID.randomUUID()
-        addNBTTagCompound(uuid)
-        idByItem[itemId] = this
+        idByItem[itemId] = addNBTTagCompound(uuid)
         uuidById[uuid] = itemId
         idByAction[itemId] = action
     }

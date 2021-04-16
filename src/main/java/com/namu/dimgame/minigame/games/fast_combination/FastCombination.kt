@@ -182,7 +182,7 @@ class FastCombination : DimGame<FastCombinationItem, FastCombinationScheduler>()
     }
 
     override fun gameStopCondition(): Boolean {
-        return productionItems.values.count { it == null } != 0
+        return productionItems.values.count { it == null } == 0
     }
 
 }

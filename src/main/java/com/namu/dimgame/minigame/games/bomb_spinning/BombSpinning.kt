@@ -50,7 +50,7 @@ class BombSpinning : DimGame<BombSpinningItems, BombSpinningSchedulers>() {
             bossBar.addPlayer(it)
         }
 
-        setRandomBombMan()
+        gameSchedulers.getScheduler(BombSpinningSchedulers.Code.SET_BOMB_MAN).runSecond(1, 1)
     }
 
     override fun onStop(rank: List<Player>) {

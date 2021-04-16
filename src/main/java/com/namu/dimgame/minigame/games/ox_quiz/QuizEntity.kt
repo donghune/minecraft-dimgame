@@ -3,8 +3,8 @@ package com.namu.dimgame.minigame.games.ox_quiz
 import org.bukkit.entity.Player
 
 class Quiz(
-        private val content: String,
-        val answer: Boolean
+    private val content: String,
+    val answer: Boolean
 ) {
     fun printQuizContent(player: Player) {
         player.sendMessage("========= [ QUIZ ] =========")
@@ -28,4 +28,10 @@ class Quiz(
 }
 
 
-val quizList = listOf<Quiz>()
+val quizList = listOf<Quiz>(
+    Quiz("true", true),
+    Quiz("true", true),
+    Quiz("true", true),
+    Quiz("true", false),
+    Quiz("true", true)
+)

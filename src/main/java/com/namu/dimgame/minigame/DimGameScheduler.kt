@@ -1,5 +1,6 @@
 package com.namu.dimgame.minigame
 
+import com.namu.dimgame.util.stopSchedulerNotWithFinish
 import com.namu.namulibrary.schedular.SchedulerManager
 
 abstract class DimGameScheduler<ID>(
@@ -9,7 +10,7 @@ abstract class DimGameScheduler<ID>(
     private val idByScheduler = mutableMapOf<ID, SchedulerManager>()
 
     fun clearScheduler() {
-        idByScheduler.values.forEach { it.stopScheduler() }
+        idByScheduler.values.forEach { it.stopSchedulerNotWithFinish() }
     }
 
     fun getScheduler(id: ID): SchedulerManager {

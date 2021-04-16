@@ -2,15 +2,32 @@ package com.namu.dimgame.game
 
 import com.namu.dimgame.minigame.DimGame
 import com.namu.dimgame.minigame.GameStatus
+import com.namu.dimgame.minigame.games.battle_of_push.BattleOfPush
+import com.namu.dimgame.minigame.games.bomb_spinning.BombSpinning
+import com.namu.dimgame.minigame.games.fast_combination.FastCombination
+import com.namu.dimgame.minigame.games.jump_map.JumpMap
+import com.namu.dimgame.minigame.games.ox_quiz.OXQuiz
+import com.namu.dimgame.minigame.games.score_of_push.ScoreOfPush
+import com.namu.dimgame.minigame.games.spleef.Spleef
+import com.namu.dimgame.minigame.games.to_avoid_anvil.ToAvoidAnvil
 import org.bukkit.Bukkit
 import java.util.*
 
 abstract class MiniGameLifeCycle {
 
     private val playerStateManager = PlayerParticipantStatusManager()
-    private val loadGameList: List<DimGame<*, *>> = listOf()
+    private val loadGameList: List<DimGame<*, *>> = listOf(
+        BattleOfPush(),
+        BombSpinning(),
+        FastCombination(),
+        JumpMap(),
+        OXQuiz(),
+        ScoreOfPush(),
+        Spleef(),
+        ToAvoidAnvil()
+    )
     private var selectedGameList: MutableList<DimGame<*, *>> = mutableListOf()
-    private val maxRound = 1
+    private val maxRound = loadGameList.size
 
     protected var gameState = GameStatus.NOT_PLAYING
 
