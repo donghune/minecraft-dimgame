@@ -72,7 +72,9 @@ class BombSpinning : DimGame<BombSpinningItems, BombSpinningSchedulers>() {
                 player.gameMode = GameMode.SPECTATOR
                 player.teleport(mapLocations.respawn)
 
-                finishedPlayerList.add(player.uniqueId)
+                if (!finishedPlayerList.contains(player.uniqueId)) {
+                    finishedPlayerList.add(player.uniqueId)
+                }
 
                 if (gameStopCondition()) {
                     finishedPlayerList.add(alivePlayers[0].uniqueId)

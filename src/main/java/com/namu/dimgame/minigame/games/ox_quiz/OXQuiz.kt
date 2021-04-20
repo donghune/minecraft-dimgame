@@ -45,7 +45,7 @@ class OXQuiz : DimGame<OXQuizItem, OXQuizScheduler>() {
             it.gameMode = GameMode.ADVENTURE
         }
 
-        gameSchedulers.getScheduler(OXQuizScheduler.Code.MAIN).runSecond(12, 5)
+        gameSchedulers.getScheduler(OXQuizScheduler.Code.MAIN).runSecond(15, 5)
     }
 
     override fun onStop(rank: List<Player>) {

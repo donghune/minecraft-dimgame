@@ -25,11 +25,11 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
     abstract val gameItems: ITEM
     abstract val gameSchedulers: SCHEDULER
 
-    var gameStatus: MiniGameStatus = MiniGameStatus.WAITING
+    internal var gameStatus: MiniGameStatus = MiniGameStatus.WAITING
     private var observerPlayerList: List<Player> = listOf()
-    var participationPlayerList: MutableList<Player> = mutableListOf()
+    internal var participationPlayerList: MutableList<Player> = mutableListOf()
 
-    val playerGameStatusManager = PlayerGameStatusManager(this)
+    internal val playerGameStatusManager = PlayerGameStatusManager(this)
     private lateinit var mapScheduler: SchedulerManager
     private lateinit var onMiniGameStopCallback: (List<Player>) -> Unit
 

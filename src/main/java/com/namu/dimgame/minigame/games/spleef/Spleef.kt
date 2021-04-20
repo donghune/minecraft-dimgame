@@ -18,31 +18,32 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import java.util.*
 import kotlin.random.Random
 
 class Spleef : DimGame<SpleefItem, SpleefSchedulers>() {
 
     override val name: String = "스플리프"
     override val description: String =
-            "한 겹으로 2층에 걸쳐 쌓여있는 사각형 눈블럭 맵에서 플레이어들은 서로를 떨어뜨려야만 하는 게임입니다.\n가장 오래 살아남았던 3등까지 카운트 됩니다."
+        "한 겹으로 2층에 걸쳐 쌓여있는 사각형 눈블럭 맵에서 플레이어들은 서로를 떨어뜨려야만 하는 게임입니다.\n가장 오래 살아남았던 3등까지 카운트 됩니다."
 
     override val mapLocations: DimGameMap = DimGameMap(
-            pos1 = Location(Bukkit.getWorld("world"), 481.0, 100.0, 370.0),
-            pos2 = Location(Bukkit.getWorld("world"), 503.0, 30.0, 348.0),
-            respawn = Location(Bukkit.getWorld("world"), 492.0, 94.0, 359.0)
+        pos1 = Location(Bukkit.getWorld("world"), 481.0, 100.0, 370.0),
+        pos2 = Location(Bukkit.getWorld("world"), 503.0, 30.0, 348.0),
+        respawn = Location(Bukkit.getWorld("world"), 492.0, 94.0, 359.0)
     )
 
     override val gameOption: DimGameOption = DimGameOption(
-            isBlockPlace = false,
-            isBlockBreak = true,
-            isCraft = false,
-            isAttack = false,
+        isBlockPlace = false,
+        isBlockBreak = true,
+        isCraft = false,
+        isAttack = false,
     )
 
     override val gameItems: SpleefItem = SpleefItem()
     override val gameSchedulers: SpleefSchedulers = SpleefSchedulers(this)
     override val defaultItems: List<ItemStack> = listOf(
-            gameItems.getItemById(SpleefItem.Code.SHOVEL)
+        gameItems.getItemById(SpleefItem.Code.SHOVEL)
     )
 
     override fun onStart() {
@@ -66,6 +67,8 @@ class Spleef : DimGame<SpleefItem, SpleefSchedulers>() {
         }
     }
 
+    val finishedPlayerList = mutableListOf<UUID>()
+
     override fun onChangedPlayerState(player: Player, playerState: PlayerStatus) {
 
         when (playerState) {
@@ -82,11 +85,16 @@ class Spleef : DimGame<SpleefItem, SpleefSchedulers>() {
 
                 Bukkit.getOnlinePlayers().forEach { it.sendInfoMessage("${player.displayName}님이 탈락하셨습니다.") }
 
-                participationPlayerList
-                        .filter { playerGameStatusManager.getStatus(it.uniqueId) == PlayerStatus.ALIVE }
-                        .toList()
-                        .takeIf { it.count() == 1 }
-                        ?.let { stopGame(it) }
+                if (finishedPlayerList.contains(player.uniqueId)) {
+                    return
+                }
+
+                finishedPlayerList.add(player.uniqueId)
+
+                if (alivePlayers.size == 1) {
+                    finishedPlayerList.add(alivePlayers[0].uniqueId)
+                    stopGame(finishedPlayerList.map { Bukkit.getPlayer(it)!! }.reversed())
+                }
             }
         }
 

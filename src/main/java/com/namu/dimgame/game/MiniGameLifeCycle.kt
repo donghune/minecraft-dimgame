@@ -10,22 +10,24 @@ import com.namu.dimgame.minigame.games.ox_quiz.OXQuiz
 import com.namu.dimgame.minigame.games.score_of_push.ScoreOfPush
 import com.namu.dimgame.minigame.games.spleef.Spleef
 import com.namu.dimgame.minigame.games.to_avoid_anvil.ToAvoidAnvil
+import com.namu.namulibrary.schedular.SchedulerManager
 import org.bukkit.Bukkit
 import java.util.*
 
 abstract class MiniGameLifeCycle {
 
     private val playerStateManager = PlayerParticipantStatusManager()
-    private val loadGameList: List<DimGame<*, *>> = listOf(
-        BattleOfPush(),
-        BombSpinning(),
-        FastCombination(),
-        JumpMap(),
-        OXQuiz(),
-        ScoreOfPush(),
-        Spleef(),
-        ToAvoidAnvil()
-    )
+    private val loadGameList: List<DimGame<*, *>>
+        get() = listOf(
+            BattleOfPush(),
+            BombSpinning(),
+            FastCombination(),
+            JumpMap(),
+            OXQuiz(),
+            ScoreOfPush(),
+            Spleef(),
+            ToAvoidAnvil()
+        )
     private var selectedGameList: MutableList<DimGame<*, *>> = mutableListOf()
     private val maxRound = loadGameList.size
 
@@ -71,6 +73,19 @@ abstract class MiniGameLifeCycle {
         return true
     }
 
+    private val nextGameScheduler: (DimGame<*, *>, () -> Unit) -> SchedulerManager = { dimGame, countDownEndCallback ->
+        SchedulerManager {
+            doing {
+                Bukkit.getOnlinePlayers().forEach {
+                    it.sendTitle(dimGame.name, (cycle - currentCycle).toString(), 0, 20, 0)
+                }
+            }
+            finished {
+                countDownEndCallback.invoke()
+            }
+        }
+    }
+
     /**
      * 다음 게임 시작
      */
@@ -85,19 +100,24 @@ abstract class MiniGameLifeCycle {
             onStop()
             return
         }
+        gameState = GameStatus.NOT_PLAYING
 
         onRoundStart()
-        selectedGameList[round].startGame(
-            Bukkit.getOnlinePlayers()
-                .filter { player -> playerStateManager.getStatus(player.uniqueId) == ParticipantStatus.PARTICIPANT }
-                .toList(),
-            Bukkit.getOnlinePlayers()
-                .filter { player -> playerStateManager.getStatus(player.uniqueId) == ParticipantStatus.OBSERVER }
-                .toList()
-        ) { rankPlayerList ->
-            onRoundEnd(rankPlayerList.map { player -> player.uniqueId })
-            startNextGame(round + 1)
-        }
+
+        nextGameScheduler(selectedGameList[round]) {
+            gameState = GameStatus.PLAYING
+            selectedGameList[round].startGame(
+                Bukkit.getOnlinePlayers()
+                    .filter { player -> playerStateManager.getStatus(player.uniqueId) == ParticipantStatus.PARTICIPANT }
+                    .toList(),
+                Bukkit.getOnlinePlayers()
+                    .filter { player -> playerStateManager.getStatus(player.uniqueId) == ParticipantStatus.OBSERVER }
+                    .toList()
+            ) { rankPlayerList ->
+                onRoundEnd(rankPlayerList.map { player -> player.uniqueId })
+                startNextGame(round + 1)
+            }
+        }.runSecond(1L, 5)
     }
 
     // lifecycles

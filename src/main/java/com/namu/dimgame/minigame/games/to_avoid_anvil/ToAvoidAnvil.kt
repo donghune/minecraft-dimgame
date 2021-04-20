@@ -90,7 +90,7 @@ class ToAvoidAnvil : DimGame<ToAvoidAnvilItem, ToAvoidAnvilScheduler>() {
             event.block.world.playSound(event.block.location, Sound.BLOCK_ANVIL_PLACE, 0.1f, 1f)
 
             // player
-            event.block.world.getNearbyEntities(event.block.location, 0.1, 0.1, 0.1)
+            event.block.world.getNearbyEntities(event.block.location, 0.5, 0.5, 0.5)
                 .filterIsInstance<Player>()
                 .firstOrNull { playerGameStatusManager.getStatus(it.uniqueId) == PlayerStatus.ALIVE }
                 ?.let { notNullPlayer -> playerGameStatusManager.setStatus(notNullPlayer.uniqueId, PlayerStatus.DIE) }
@@ -137,12 +137,14 @@ class ToAvoidAnvil : DimGame<ToAvoidAnvilItem, ToAvoidAnvilScheduler>() {
                     z.toDouble()
                 ).block.type = Material.LIGHT_GRAY_WOOL
 
-                Location(
-                    mapLocations.pos1.world,
-                    x.toDouble(),
-                    mapLocations.startY.toDouble() + 1,
-                    z.toDouble()
-                ).block.type = Material.AIR
+                repeat(10) {
+                    Location(
+                        mapLocations.pos1.world,
+                        x.toDouble(),
+                        mapLocations.startY.toDouble() + it + 1,
+                        z.toDouble()
+                    ).block.type = Material.AIR
+                }
             }
         }
     }

@@ -19,12 +19,6 @@ class OXQuizScheduler(dimGame: OXQuiz) : DimGameScheduler<OXQuizScheduler.Code>(
         SchedulerManager {
             lateinit var currentQuiz: Quiz
             started {
-                // potion clear
-                dimGame.participationPlayerList.forEach {
-                    it.activePotionEffects.forEach { potionEffect: PotionEffect ->
-                        it.removePotionEffect(potionEffect.type)
-                    }
-                }
                 // set random quiz
                 currentQuiz = quizList.random()
 
@@ -36,22 +30,13 @@ class OXQuizScheduler(dimGame: OXQuiz) : DimGameScheduler<OXQuizScheduler.Code>(
             doing { count ->
                 // count down
                 dimGame.participationPlayerList.forEach {
-                    it.sendTitle((10 - count).toString(), "", 0, 20, 0)
+                    it.sendTitle((cycle - count % cycle).toString(), "", 0, 20, 0)
                 }
             }
             finished {
                 Bukkit.getOnlinePlayers().forEach {
                     it.clearChat()
                     currentQuiz.printQuizAnswer(it)
-                }
-                // potion effect & score calculate
-                dimGame.participationPlayerList.forEach {
-                    it.addPotionEffect(
-                        PotionEffect(PotionEffectType.SLOW, Int.MAX_VALUE, 10000, false, false, false)
-                    )
-                    it.addPotionEffect(
-                        PotionEffect(PotionEffectType.JUMP, Int.MAX_VALUE, 10000, false, false, false)
-                    )
                 }
 
                 val answerLocation = if (currentQuiz.answer) {
@@ -76,6 +61,9 @@ class OXQuizScheduler(dimGame: OXQuiz) : DimGameScheduler<OXQuizScheduler.Code>(
                 dimGame.participationPlayerList
                     .filter { it.location.distance(answerLocation) <= 11 }
                     .forEach { dimGame.uuidByScore[it.uniqueId] = (dimGame.uuidByScore[it.uniqueId] ?: 0) + 1 }
+
+                // potion clear
+                currentCycle = 0
             }
         }.registerScheduler(Code.QUIZ)
 
@@ -87,14 +75,14 @@ class OXQuizScheduler(dimGame: OXQuiz) : DimGameScheduler<OXQuizScheduler.Code>(
                 getScheduler(Code.QUIZ).runSecond(1, 10)
             }
             finished {
-                dimGame.participationPlayerList.forEach {
-                    it.activePotionEffects.forEach { potionEffect: PotionEffect ->
-                        it.removePotionEffect(potionEffect.type)
-                    }
-                }
+                val resultMap = dimGame.participationPlayerList.map {
+                    it.uniqueId to 0
+                }.toMap().toMutableMap()
+
+                dimGame.uuidByScore.forEach { (uuid, score) -> resultMap[uuid] = score }
 
                 dimGame.stopGame(
-                    dimGame.uuidByScore.toSortedMap(
+                    resultMap.toSortedMap(
                         Comparator { o1: UUID, o2: UUID ->
                             return@Comparator (dimGame.uuidByScore[o2] ?: 0) - (dimGame.uuidByScore[o1] ?: 0)
                         }

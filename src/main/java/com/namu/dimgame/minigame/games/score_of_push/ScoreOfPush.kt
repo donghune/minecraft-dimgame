@@ -41,7 +41,7 @@ class ScoreOfPush : DimGame<ScoreOfPushItem, ScoreOfPushScheduler>() {
 
     internal val uuidByScore = mutableMapOf<UUID, Int>()
     internal val bossBar = Bukkit.createBossBar("남은시간 %02d:%02d", BarColor.BLUE, BarStyle.SEGMENTED_20)
-    internal val playTime = 60 * 2;
+    internal val playTime = 60 * 1
 
     override fun onStart() {
         mapLocations.respawn.clone().apply {

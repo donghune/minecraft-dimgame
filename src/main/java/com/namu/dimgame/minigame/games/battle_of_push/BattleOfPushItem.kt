@@ -14,7 +14,7 @@ class BattleOfPushItem : DimGameItem<BattleOfPushItem.Code>() {
             .setDisplay("날개")
             .setLore(listOf("공중부양을 5초간 부여합니다."))
             .build()
-            .registerAction(Code.FEATHER) {
+            .registerAction(Code.FEATHER, true) {
                 val potionEffect = PotionEffect(PotionEffectType.LEVITATION, 20 * 5, 1, true, false)
                 it.player.addPotionEffect(potionEffect)
             }
@@ -23,7 +23,7 @@ class BattleOfPushItem : DimGameItem<BattleOfPushItem.Code>() {
             .setDisplay("신속")
             .setLore(listOf("3초간 신속1이 부여됩니다."))
             .build()
-            .registerAction(Code.SPEED) {
+            .registerAction(Code.SPEED, true) {
                 val potionEffect = PotionEffect(PotionEffectType.SPEED, 20 * 3, 0, true, false)
                 it.player.addPotionEffect(potionEffect)
             }
@@ -35,7 +35,7 @@ class BattleOfPushItem : DimGameItem<BattleOfPushItem.Code>() {
             .apply {
                 addUnsafeEnchantment(Enchantment.KNOCKBACK, 3)
             }
-            .registerAction(Code.STICK)
+            .registerAction(Code.STICK, false)
     }
 
     enum class Code {

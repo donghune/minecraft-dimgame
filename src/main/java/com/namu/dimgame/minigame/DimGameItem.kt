@@ -3,6 +3,7 @@ package com.namu.dimgame.minigame
 import com.namu.dimgame.plugin
 import com.namu.namulibrary.nms.addNBTTagCompound
 import com.namu.namulibrary.nms.getNBTTagCompound
+import com.sun.org.apache.xpath.internal.operations.Bool
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -15,11 +16,20 @@ import java.util.*
 abstract class DimGameItem<ID> : Listener {
 
     private val idByAction = mutableMapOf<ID, (PlayerInteractEvent) -> Unit>()
+    private val idByIsActionItem = mutableMapOf<ID, Boolean>()
     private val idByItem = mutableMapOf<ID, ItemStack>()
     private val uuidById = mutableMapOf<UUID, ID>()
 
     fun getItemList(): List<ItemStack> {
         return idByItem.values.toList()
+    }
+
+    fun getActionItemList(): List<ItemStack> {
+        return idByItem.filter { idByIsActionItem[it.key] == true }.values.toList()
+    }
+
+    fun getNoActionItemList(): List<ItemStack> {
+        return idByItem.filter { idByIsActionItem[it.key] == false }.values.toList()
     }
 
     fun getItemById(id: ID): ItemStack {
@@ -28,11 +38,13 @@ abstract class DimGameItem<ID> : Listener {
 
     fun ItemStack.registerAction(
         itemId: ID,
-        action: (PlayerInteractEvent) -> Unit = {}
+        isAction: Boolean,
+        action: (PlayerInteractEvent) -> Unit = { }
     ) {
         val uuid = UUID.randomUUID()
         idByItem[itemId] = addNBTTagCompound(uuid)
         uuidById[uuid] = itemId
+        idByIsActionItem[itemId] = isAction
         idByAction[itemId] = action
     }
 
@@ -43,6 +55,8 @@ abstract class DimGameItem<ID> : Listener {
     fun unregister() {
         PlayerInteractEvent.getHandlerList().unregister(this)
     }
+
+    private val EMPTY_ACTION: (PlayerInteractEvent) -> Unit = {}
 
     @EventHandler
     fun onPlayerInteractEventItem(event: PlayerInteractEvent) {
@@ -63,6 +77,9 @@ abstract class DimGameItem<ID> : Listener {
         val id = uuidById[handItem.getNBTTagCompound(UUID::class.java)] ?: return
 
         idByAction[id]?.let {
+            if (idByIsActionItem[id] == false) {
+                return@let
+            }
             event.isCancelled = true
             handItem.amount -= 1
             it.invoke(event)

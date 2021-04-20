@@ -9,7 +9,7 @@ class JumpMapScheduler(dimGame: JumpMap) : DimGameScheduler<JumpMapScheduler.Cod
         SchedulerManager {
             doing {
                 dimGame.participationPlayerList.forEach {
-                    it.inventory.addItem(dimGame.gameItems.getItemList().random())
+                    it.inventory.addItem(dimGame.gameItems.getActionItemList().random())
                 }
             }
         }.registerScheduler(Code.RANDOM_ITEM)

@@ -23,18 +23,6 @@ class DimGamePlugin : JavaPlugin() {
 
         SchedulerManager.initializeSchedulerManager(this)
 
-        Bukkit.getPluginManager().registerEvents(object : Listener {
-            @EventHandler
-            fun onCraftItemEvent(event: CraftItemEvent) {
-                Bukkit.broadcastMessage(
-                    "%s 님이 %s를 제작하였습니다.".format(
-                        event.whoClicked.name,
-                        event.currentItem?.type.toString()
-                    )
-                )
-            }
-        }, this)
-
         Bukkit.getOnlinePlayers().forEach {
             it.activePotionEffects.forEach { potionEffect ->
                 it.removePotionEffect(potionEffect.type)
@@ -43,17 +31,6 @@ class DimGamePlugin : JavaPlugin() {
 
         kommand {
             register("dimgame") {
-                then("test") {
-                    then("particle" to string()) {
-                        then("sound" to string()) {
-                            executes {
-                                val player = it.sender as Player
-
-
-                            }
-                        }
-                    }
-                }
                 then("start") {
                     executes {
                         val result = DimGameManager.start()
