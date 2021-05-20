@@ -3,7 +3,6 @@ package com.namu.dimgame.minigame
 import com.namu.dimgame.plugin
 import com.namu.namulibrary.nms.addNBTTagCompound
 import com.namu.namulibrary.nms.getNBTTagCompound
-import com.sun.org.apache.xpath.internal.operations.Bool
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

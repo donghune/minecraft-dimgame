@@ -1,5 +1,6 @@
 package com.namu.dimgame.minigame
 
+import com.namu.dimgame.manager.PlayerStatus
 import org.bukkit.Bukkit
 import java.util.*
 

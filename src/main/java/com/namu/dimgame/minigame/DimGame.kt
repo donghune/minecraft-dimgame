@@ -1,8 +1,8 @@
 package com.namu.dimgame.minigame
 
-import com.namu.dimgame.game.DimGameManager
+import com.namu.dimgame.manager.PlayerStatus
+import com.namu.dimgame.manager.RoundGameStatus
 import com.namu.dimgame.plugin
-import com.namu.dimgame.schedular.mapScheduler
 import com.namu.namulibrary.extension.sendDebugMessage
 import com.namu.namulibrary.schedular.SchedulerManager
 import org.bukkit.Bukkit
@@ -25,16 +25,20 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
     abstract val gameItems: ITEM
     abstract val gameSchedulers: SCHEDULER
 
-    internal var gameStatus: MiniGameStatus = MiniGameStatus.WAITING
+    internal var gameStatus: RoundGameStatus = RoundGameStatus.WAITING
     private var observerPlayerList: List<Player> = listOf()
     internal var participationPlayerList: MutableList<Player> = mutableListOf()
 
-    internal val playerGameStatusManager = PlayerGameStatusManager(this)
+    internal val playerGameStatusManager = com.namu.dimgame.minigame.PlayerGameStatusManager(this)
     private lateinit var mapScheduler: SchedulerManager
     private lateinit var onMiniGameStopCallback: (List<Player>) -> Unit
 
     val alivePlayers
         get() = participationPlayerList.filter { playerGameStatusManager.getStatus(it.uniqueId) == PlayerStatus.ALIVE }
+
+    fun skipGame() {
+        stopGame(participationPlayerList)
+    }
 
     fun startGame(
         participationPlayerList: List<Player>,
@@ -47,7 +51,7 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
         this.observerPlayerList = observerPlayerList
 
         // 게임상태 변경
-        gameStatus = MiniGameStatus.RUNNING
+        gameStatus = RoundGameStatus.RUNNING
 
         // 게임 옵션 등록 ( 이벤트 )
         this.gameOption.register()
@@ -88,7 +92,7 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
             }
         }
 
-        gameStatus = MiniGameStatus.WAITING
+        gameStatus = RoundGameStatus.WAITING
 
         // 각종 스케쥴러 스탑
         mapScheduler.stopScheduler()
@@ -101,7 +105,6 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
         // 게임모드 변경 및 로비로 텔레포트
         Bukkit.getOnlinePlayers().forEach {
             it.gameMode = GameMode.ADVENTURE
-            it.teleport(DimGameManager.lobbyLocation)
             it.inventory.clear()
         }
 

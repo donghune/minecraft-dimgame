@@ -1,18 +1,10 @@
 package com.namu.dimgame
 
-import com.github.noonmaru.kommand.argument.player
-import com.github.noonmaru.kommand.argument.string
 import com.github.noonmaru.kommand.kommand
-import com.namu.dimgame.game.DimGameManager
-import com.namu.dimgame.game.ParticipantStatus
+import com.namu.dimgame.manager.DimGameManager
 import com.namu.namulibrary.extension.sendErrorMessage
-import com.namu.namulibrary.extension.sendInfoMessage
 import com.namu.namulibrary.schedular.SchedulerManager
 import org.bukkit.*
-import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.plugin.java.JavaPlugin
 
 lateinit var plugin: JavaPlugin
@@ -22,6 +14,7 @@ class DimGamePlugin : JavaPlugin() {
         plugin = this
 
         SchedulerManager.initializeSchedulerManager(this)
+        val dimGameManager = DimGameManager()
 
         Bukkit.getOnlinePlayers().forEach {
             it.activePotionEffects.forEach { potionEffect ->
@@ -33,22 +26,27 @@ class DimGamePlugin : JavaPlugin() {
             register("dimgame") {
                 then("start") {
                     executes {
-                        val result = DimGameManager.start()
+                        val result = dimGameManager.start()
 
-                        if (!result) {
-                            it.sender.sendErrorMessage("이미 게임이 진행중입니다.")
-                            return@executes
-                        }
+//                        if (!result) {
+//                            it.sender.sendErrorMessage("이미 게임이 진행중입니다.")
+//                            return@executes
+//                        }
                     }
                 }
                 then("stop") {
                     executes {
-                        val result = DimGameManager.forcedTermination()
+                        val result = dimGameManager.stop()
 
-                        if (!result) {
-                            it.sender.sendErrorMessage("게임이 진행중이지 않습니다.")
-                            return@executes
-                        }
+//                        if (!result) {
+//                            it.sender.sendErrorMessage("게임이 진행중이지 않습니다.")
+//                            return@executes
+//                        }
+                    }
+                }
+                then("skip") {
+                    executes {
+                        dimGameManager.skip()
                     }
                 }
 //                then("ob") {
