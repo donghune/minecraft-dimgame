@@ -180,14 +180,14 @@ class FastCombination : DimGame<FastCombinationItem, FastCombinationScheduler>()
         }
 
         productionItems[currentItem.type] = event.whoClicked.uniqueId
-        event.whoClicked.location.world.spawn(event.whoClicked.location, Firework::class.java).apply {
+        event.whoClicked.location.world!!.spawn(event.whoClicked.location, Firework::class.java).apply {
             fireworkMeta = fireworkMeta.apply {
                 addEffect(FireworkEffect.builder().with(FireworkEffect.Type.CREEPER).withColor(Color.LIME).build())
                 power = 0
             }
         }
 
-        event.whoClicked.location.world.playSound(
+        event.whoClicked.location.world!!.playSound(
             event.whoClicked.location,
             Sound.ENTITY_FIREWORK_ROCKET_BLAST,
             1f,

@@ -52,7 +52,7 @@ class OXQuizScheduler(dimGame: OXQuiz) : DimGameScheduler<OXQuizScheduler.Code>(
 
                 val answerCenterLocation = answerArea.center.toLocation(Bukkit.getWorld("world")!!)
 
-                answerCenterLocation.world.apply {
+                answerCenterLocation.world!!.apply {
                     playSound(answerCenterLocation, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1f)
                     spawn(answerCenterLocation, Firework::class.java).apply {
                         fireworkMeta = fireworkMeta.apply {

@@ -17,7 +17,7 @@ object ParticleResources {
                         y += Random.nextInt(-10, 10)
                         z += Random.nextInt(-10, 10)
                     }.also { location ->
-                        location.world.spawn(location, Firework::class.java).apply {
+                        location.world!!.spawn(location, Firework::class.java).apply {
                             fireworkMeta = fireworkMeta.apply {
                                 addEffect(
                                     FireworkEffect.builder().with(FireworkEffect.Type.values().first())
@@ -32,7 +32,7 @@ object ParticleResources {
                                 power = 0
                             }
                         }
-                        location.world.playSound(location, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1f)
+                        location.world!!.playSound(location, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1f)
                     }
                 },
                 Random.nextLong(10, 40)

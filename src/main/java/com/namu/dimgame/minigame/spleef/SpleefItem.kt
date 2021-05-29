@@ -12,7 +12,7 @@ class SpleefItem : DimGameItem<SpleefItem.Code>() {
     init {
         ItemBuilder().setMaterial(Material.DIAMOND_SHOVEL)
             .build()
-            .apply { itemMeta.addEnchant(Enchantment.DIG_SPEED, 4, false ) }
+            .apply { itemMeta!!.addEnchant(Enchantment.DIG_SPEED, 4, false ) }
             .registerAction(Code.SHOVEL, false)
 
         ItemBuilder()

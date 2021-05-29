@@ -8,9 +8,7 @@ import com.namu.dimgame.repository.participant.AbstractParticipantRepository
 import com.namu.dimgame.repository.participant.ParticipantStatusRepository
 import com.namu.dimgame.repository.score.AbstractPlayerScoreRepository
 import com.namu.dimgame.repository.score.PlayerScoreRepository
-import com.namu.dimgame.util.runOnBukkit
 import com.namu.namulibrary.schedular.SchedulerManager
-import kotlinx.coroutines.*
 import org.bukkit.*
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle

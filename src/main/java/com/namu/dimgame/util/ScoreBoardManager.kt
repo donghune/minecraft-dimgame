@@ -11,7 +11,7 @@ class ScoreBoardManager(
     var boardDisplaySlot: DisplaySlot = DisplaySlot.SIDEBAR
 ) {
 
-    private var scoreboard: Scoreboard = Bukkit.getScoreboardManager().newScoreboard
+    private var scoreboard: Scoreboard = Bukkit.getScoreboardManager()!!.newScoreboard
 
     fun setBoardContent(values: List<String>) {
         scoreboard.getObjective(objectiveName)?.unregister()
@@ -36,7 +36,7 @@ class ScoreBoardManager(
     }
 
     fun invisibleScoreboard(player: Player) {
-        player.scoreboard = Bukkit.getScoreboardManager().newScoreboard
+        player.scoreboard = Bukkit.getScoreboardManager()!!.newScoreboard
     }
 
     private fun getEmptyLine(index: Int): String {

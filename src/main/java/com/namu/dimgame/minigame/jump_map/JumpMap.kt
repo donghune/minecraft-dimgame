@@ -78,14 +78,14 @@ class JumpMap : DimGame<JumpMapItem, JumpMapScheduler>() {
 
         finishedPlayerList.add(event.player.uniqueId)
 
-        block.location.world.spawn(block.location, Firework::class.java).apply {
+        block.location.world!!.spawn(block.location, Firework::class.java).apply {
             fireworkMeta = fireworkMeta.apply {
                 addEffect(FireworkEffect.builder().with(FireworkEffect.Type.CREEPER).withColor(Color.LIME).build())
                 power = 0
             }
         }
 
-        block.location.world.playSound(
+        block.location.world!!.playSound(
                 block.location,
                 Sound.ENTITY_FIREWORK_ROCKET_BLAST,
                 1f,

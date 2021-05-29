@@ -34,7 +34,7 @@ object DimGameScoreBoard {
     fun clearPlayerScoreBoard() {
         Bukkit.getScheduler().runTaskLater(plugin, Runnable {
             for (player in Bukkit.getOnlinePlayers()) {
-                player.scoreboard = Bukkit.getScoreboardManager().newScoreboard
+                player.scoreboard = Bukkit.getScoreboardManager()!!.newScoreboard
             }
         }, 60L)
     }

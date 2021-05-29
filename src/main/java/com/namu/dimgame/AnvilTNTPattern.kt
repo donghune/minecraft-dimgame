@@ -88,7 +88,7 @@ enum class AnvilTNTPattern(private val vectors: List<Vector>) {
     fun execute(centerLocation: Location) {
         vectors.forEach {
             val blockLocation = centerLocation.clone().add(it)
-            blockLocation.world.spawnFallingBlock(
+            blockLocation.world!!.spawnFallingBlock(
                 blockLocation,
                 (Material.TNT.createBlockData() as TNT).also { tnt -> tnt.isUnstable = true }
             )

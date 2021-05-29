@@ -33,17 +33,14 @@ configurations {
 }
 
 dependencies {
-    implementation 'com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'com.github.namu0240:minecraft-namulibrary:4.0.2'
 
     implementation 'com.github.noonmaru:kommand:0.6.3'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
-
     shade 'com.github.noonmaru:kommand:0.6.3'
-    shade 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
 }
 
 processResources {
@@ -77,7 +74,7 @@ compileTestKotlin {
 }
 
 buildscript {
-    ext.kotlin_version = '1.4.10'
+    ext.kotlin_version = '1.5.0'
     repositories {
         mavenCentral()
         jcenter()
