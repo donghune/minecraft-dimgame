@@ -108,7 +108,6 @@ class FastCombination : DimGame<FastCombinationItem, FastCombinationScheduler>()
         EntityDeathEvent.getHandlerList().unregister(this)
         CraftItemEvent.getHandlerList().unregister(this)
         participationPlayerList.forEach {
-            it.gameMode = GameMode.SURVIVAL
             productionItemsScoreBoard.invisibleScoreboard(it)
         }
     }

@@ -8,6 +8,7 @@ import com.namu.namulibrary.extension.sendInfoMessage
 import com.namu.namulibrary.schedular.SchedulerManager
 import org.bukkit.*
 import org.bukkit.block.Block
+import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.FallingBlock
 import org.bukkit.entity.Player
@@ -60,12 +61,14 @@ class ToAvoidAnvil : DimGame<ToAvoidAnvilItem, ToAvoidAnvilScheduler>() {
     override fun onStop(rank: List<Player>) {
         EntityDamageByBlockEvent.getHandlerList().unregister(this)
         EntityChangeBlockEvent.getHandlerList().unregister(this)
+        tntEntityList.forEach { it.remove() }
         ExplosionPrimeEvent.getHandlerList().unregister(this)
         gameSchedulers.getScheduler(ToAvoidAnvilScheduler.Code.MAIN).stopScheduler()
         gameSchedulers.getScheduler(ToAvoidAnvilScheduler.Code.PATTERN).stopScheduler()
     }
 
     private val finishedPlayerList = mutableListOf<UUID>()
+    private val tntEntityList = mutableListOf<Entity>()
 
     override fun onChangedPlayerState(player: Player, playerState: PlayerStatus) {
         when (playerState) {
@@ -125,7 +128,7 @@ class ToAvoidAnvil : DimGame<ToAvoidAnvilItem, ToAvoidAnvilScheduler>() {
                     }
                 }
                 Material.TNT -> {
-                    event.block.world.spawnEntity(event.block.location, EntityType.PRIMED_TNT)
+                    tntEntityList.add(event.block.world.spawnEntity(event.block.location, EntityType.PRIMED_TNT))
                 }
                 else -> {
                     println(event.block.type)
@@ -138,7 +141,7 @@ class ToAvoidAnvil : DimGame<ToAvoidAnvilItem, ToAvoidAnvilScheduler>() {
     fun onExplosionPrimeEvent(event: ExplosionPrimeEvent) {
         event.isCancelled = true
         getNearByBlockList(event.entity.location)
-            .onEach { it.world.playSound(it.location, Sound.ENTITY_GENERIC_EXPLODE, 0.3f, 1f) }
+            .onEach { it.world.playSound(it.location, Sound.ENTITY_GENERIC_EXPLODE, 0.2f, 1f) }
             .forEach { underBlock ->
                 when (underBlock.type) {
                     Material.LIGHT_GRAY_WOOL -> underBlock.type = Material.YELLOW_WOOL
