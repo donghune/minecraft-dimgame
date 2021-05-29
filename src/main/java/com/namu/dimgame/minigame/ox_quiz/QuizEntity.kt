@@ -3,30 +3,9 @@ package com.namu.dimgame.minigame.ox_quiz
 import org.bukkit.entity.Player
 
 class Quiz(
-    private val content: String,
+    val content: String,
     val answer: Boolean
-) {
-    fun printQuizContent(player: Player) {
-        player.sendMessage("========= [ QUIZ ] =========")
-        player.sendMessage("")
-        player.sendMessage("")
-        player.sendMessage("Q. $content")
-        player.sendMessage("")
-        player.sendMessage("")
-        player.sendMessage("========= [ QUIZ ] =========")
-    }
-
-    fun printQuizAnswer(player: Player) {
-        player.sendMessage("========= [ QUIZ ] =========")
-        player.sendMessage("")
-        player.sendMessage("")
-        player.sendMessage("A. $answer")
-        player.sendMessage("")
-        player.sendMessage("")
-        player.sendMessage("========= [ QUIZ ] =========")
-    }
-}
-
+)
 
 val quizList = listOf<Quiz>(
     Quiz("[딤튜브] : 따식님의 나이는 한우님보다 낮다 ", true),

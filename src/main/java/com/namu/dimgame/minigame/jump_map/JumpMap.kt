@@ -18,7 +18,7 @@ class JumpMap : DimGame<JumpMapItem, JumpMapScheduler>() {
 
     private val goalBlockLocation = Location(Bukkit.getWorld("world"), 267.0, 97.0, 110.0)
 
-    override val name: String = "점프맵"
+    override val name: String = ChatColor.DARK_RED.toString() + "점프맵"
     override val description: String = "누구보다 빨리 맵의 끝에 있는 에메랄드 블럭을 터치하세요!"
 
     override val mapLocations: DimGameMap = DimGameMap(

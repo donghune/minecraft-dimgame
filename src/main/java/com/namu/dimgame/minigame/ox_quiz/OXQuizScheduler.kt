@@ -1,13 +1,12 @@
 package com.namu.dimgame.minigame.ox_quiz
 
 import com.namu.dimgame.minigame.DimGameScheduler
-import com.namu.dimgame.util.clearChat
+import com.namu.dimgame.util.contains2D
 import com.namu.namulibrary.schedular.SchedulerManager
-import org.bukkit.Bukkit
-import org.bukkit.Color
-import org.bukkit.FireworkEffect
-import org.bukkit.Sound
+import org.bukkit.*
 import org.bukkit.entity.Firework
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import java.util.*
 import kotlin.Comparator
 
@@ -19,37 +18,47 @@ class OXQuizScheduler(dimGame: OXQuiz) : DimGameScheduler<OXQuizScheduler.Code>(
             started {
                 // set random quiz
                 currentQuiz = quizList.random()
-
-                Bukkit.getOnlinePlayers().forEach {
-                    it.clearChat()
-                    currentQuiz.printQuizContent(it)
-                }
             }
             doing { count ->
                 // count down
                 dimGame.participationPlayerList.forEach {
-                    it.sendTitle((cycle - count % cycle).toString(), "", 0, 20, 0)
+                    it.sendTitle(
+                        ChatColor.RED.toString() + (cycle - count % cycle).toString(),
+                        ChatColor.GOLD.toString() + currentQuiz.content,
+                        0,
+                        20,
+                        0
+                    )
+                    it.playSound(it.location, Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 1f, 1f)
                 }
             }
             finished {
-                Bukkit.getOnlinePlayers().forEach {
-                    it.clearChat()
-                    currentQuiz.printQuizAnswer(it)
+                dimGame.participationPlayerList.forEach {
+                    it.sendTitle(
+                        if (currentQuiz.answer) ChatColor.BLUE.toString() + "O" else ChatColor.RED.toString() + "X",
+                        "",
+                        0,
+                        60,
+                        0
+                    )
+                    it.playSound(it.location, Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 1f, 1f)
                 }
 
-                val answerLocation = if (currentQuiz.answer) {
-                    dimGame.blueCenterLocation
+                val answerArea = if (currentQuiz.answer) {
+                    dimGame.blueArea
                 } else {
-                    dimGame.redCenterLocation
+                    dimGame.redArea
                 }
 
-                answerLocation.world.apply {
-                    playSound(answerLocation, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1f)
+                val answerCenterLocation = answerArea.center.toLocation(Bukkit.getWorld("world")!!)
 
-                    spawn(answerLocation, Firework::class.java).apply {
+                answerCenterLocation.world.apply {
+                    playSound(answerCenterLocation, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1f)
+                    spawn(answerCenterLocation, Firework::class.java).apply {
                         fireworkMeta = fireworkMeta.apply {
                             addEffect(
-                                FireworkEffect.builder().with(FireworkEffect.Type.STAR).withColor(Color.LIME).build()
+                                FireworkEffect.builder().with(FireworkEffect.Type.STAR).withColor(Color.LIME)
+                                    .build()
                             )
                             power = 0
                         }
@@ -57,7 +66,19 @@ class OXQuizScheduler(dimGame: OXQuiz) : DimGameScheduler<OXQuizScheduler.Code>(
                 }
 
                 dimGame.participationPlayerList
-                    .filter { it.location.distance(answerLocation) <= 11 }
+                    .filter { answerArea.contains2D(it.location.toVector()) }
+                    .onEach { player ->
+                        player.addPotionEffect(
+                            PotionEffect(
+                                PotionEffectType.GLOWING,
+                                (20L * 2).toInt(),
+                                1,
+                                false,
+                                false,
+                                false
+                            )
+                        )
+                    }
                     .forEach { dimGame.uuidByScore[it.uniqueId] = (dimGame.uuidByScore[it.uniqueId] ?: 0) + 1 }
 
                 // potion clear
@@ -73,21 +94,23 @@ class OXQuizScheduler(dimGame: OXQuiz) : DimGameScheduler<OXQuizScheduler.Code>(
                 getScheduler(Code.QUIZ).runSecond(1, 10)
             }
             finished {
-                val resultMap = dimGame.participationPlayerList.map {
-                    it.uniqueId to 0
-                }.toMap().toMutableMap()
-
-                dimGame.uuidByScore.forEach { (uuid, score) -> resultMap[uuid] = score }
-
-                dimGame.stopGame(
-                    resultMap.toSortedMap(
-                        Comparator { o1: UUID, o2: UUID ->
-                            return@Comparator (dimGame.uuidByScore[o2] ?: 0) - (dimGame.uuidByScore[o1] ?: 0)
-                        }
-                    ).keys
-                        .mapNotNull { Bukkit.getPlayer(it) }
-                        .toList()
-                )
+                dimGame.participationPlayerList
+                    .map { it.uniqueId to 0 }
+                    .onEach { println(".map { it.uniqueId to 0 } $it") }
+                    .toMap().toMutableMap()
+                    .onEach { println(".toMap().toMutableMap() $it") }
+                    .also { dimGame.uuidByScore.forEach { (uuid, score) -> it[uuid] = score } }
+                    .onEach { println(".also { dimGame.uuidByScore.forEach { (uuid, score) -> it[uuid] = score } } $it") }
+                    .toSortedMap(Comparator { o1: UUID, o2: UUID ->
+                        return@Comparator (dimGame.uuidByScore[o2] ?: 0) - (dimGame.uuidByScore[o1] ?: 0)
+                    }).keys
+                    .onEach { println(".toSortedMap(Comparator { o1: UUID, o2: UUID -> return@Comparator (dimGame.uuidByScore[o2] ?: 0) - (dimGame.uuidByScore[o1] ?: 0) }).keys $it") }
+                    .mapNotNull { Bukkit.getPlayer(it) }
+                    .onEach { println(".mapNotNull { Bukkit.getPlayer(it) } $it") }
+                    .toList()
+                    .onEach { println(".toList() $it") }
+                    .also { dimGame.stopGame(it) }
+                    .onEach { println(".also { dimGame.stopGame(it) } $it") }
             }
         }.registerScheduler(Code.MAIN)
     }

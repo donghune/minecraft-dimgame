@@ -16,6 +16,7 @@ class PlayerScoreRepository : AbstractPlayerScoreRepository() {
     }
 
     override fun getRank(): SortedMap<UUID, Int> {
+        println(uuidByScore)
         return uuidByScore.toSortedMap { player1, player2 ->
             return@toSortedMap if (getPlayerScore(player1) == getPlayerScore(player2)) {
                 -1

@@ -1,8 +1,10 @@
 package com.namu.dimgame.repository.other
 
+import com.namu.dimgame.plugin
 import com.namu.dimgame.repository.score.AbstractPlayerScoreRepository
 import com.namu.dimgame.util.ScoreBoardManager
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 
 object DimGameScoreBoard {
@@ -12,7 +14,7 @@ object DimGameScoreBoard {
 
         boardContent.add("내 정보")
         scoreRepository.getPlayerScore(player.uniqueId).also {
-            boardContent.add("총점 : ★ x $it")
+            boardContent.add("총점 : " + ChatColor.GREEN.toString() + "★" + ChatColor.WHITE.toString() + " x $it")
             boardContent.add("")
         }
 
@@ -28,4 +30,13 @@ object DimGameScoreBoard {
         playerScoreBoard.setBoardContent(boardContent)
         playerScoreBoard.visibleScoreboard(player)
     }
+
+    fun clearPlayerScoreBoard() {
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            for (player in Bukkit.getOnlinePlayers()) {
+                player.scoreboard = Bukkit.getScoreboardManager().newScoreboard
+            }
+        }, 60L)
+    }
+
 }

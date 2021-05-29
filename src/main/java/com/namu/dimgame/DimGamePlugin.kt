@@ -1,11 +1,16 @@
 package com.namu.dimgame
 
+import com.github.noonmaru.kommand.argument.string
 import com.github.noonmaru.kommand.kommand
 import com.namu.dimgame.manager.DimGameManager
-import com.namu.namulibrary.extension.sendErrorMessage
+import com.namu.dimgame.util.getTop
+import com.namu.dimgame.util.resize2D
+import com.namu.dimgame.util.toRandomLocation
 import com.namu.namulibrary.schedular.SchedulerManager
 import org.bukkit.*
+import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.util.BoundingBox
 
 lateinit var plugin: JavaPlugin
 
@@ -15,6 +20,7 @@ class DimGamePlugin : JavaPlugin() {
 
         SchedulerManager.initializeSchedulerManager(this)
         val dimGameManager = DimGameManager()
+        dimGameManager.onEnabled()
 
         Bukkit.getOnlinePlayers().forEach {
             it.activePotionEffects.forEach { potionEffect ->
@@ -26,22 +32,12 @@ class DimGamePlugin : JavaPlugin() {
             register("dimgame") {
                 then("start") {
                     executes {
-                        val result = dimGameManager.start()
-
-//                        if (!result) {
-//                            it.sender.sendErrorMessage("이미 게임이 진행중입니다.")
-//                            return@executes
-//                        }
+                        dimGameManager.start()
                     }
                 }
                 then("stop") {
                     executes {
-                        val result = dimGameManager.stop()
-
-//                        if (!result) {
-//                            it.sender.sendErrorMessage("게임이 진행중이지 않습니다.")
-//                            return@executes
-//                        }
+                        dimGameManager.stop()
                     }
                 }
                 then("skip") {
@@ -49,27 +45,20 @@ class DimGamePlugin : JavaPlugin() {
                         dimGameManager.skip()
                     }
                 }
-//                then("ob") {
-//                    then("player" to player()) {
-//                        executes {
-//                            val target = it.parseArgument<Player>("player")
-//                            val playerState = DimGameManager.getPlayerGameState(target.uniqueId)
-//
-//                            if (playerState == ParticipantStatus.NONE || playerState == ParticipantStatus.OBSERVER) {
-//                                DimGameManager.setPlayerGameState(target.uniqueId, ParticipantStatus.PARTICIPANT)
-//                                target.sendInfoMessage("참여자로 설정 되었습니다.")
-//                                return@executes
-//                            }
-//
-//                            DimGameManager.setPlayerGameState(target.uniqueId, ParticipantStatus.OBSERVER)
-//                            target.sendInfoMessage("옵저버로 설정 되었습니다.")
-//                        }
-//                    }
-//                }
+                then("debug") {
+                    executes {
+
+                    }
+                }
             }
         }
     }
 
     override fun onDisable() {
+        Bukkit.getOnlinePlayers().forEach { player ->
+            Bukkit.getBossBars().forEach { keyedBossBar ->
+                keyedBossBar.removePlayer(player)
+            }
+        }
     }
 }

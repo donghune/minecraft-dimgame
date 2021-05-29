@@ -36,9 +36,14 @@ dependencies {
     implementation 'com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     implementation 'com.github.namu0240:minecraft-namulibrary:4.0.2'
-    shade 'com.github.noonmaru:kommand:0.6.3'
+
     implementation 'com.github.noonmaru:kommand:0.6.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
+
+    shade 'com.github.noonmaru:kommand:0.6.3'
+    shade 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
 }
 
 processResources {

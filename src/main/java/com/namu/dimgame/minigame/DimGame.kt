@@ -3,7 +3,9 @@ package com.namu.dimgame.minigame
 import com.namu.dimgame.manager.PlayerStatus
 import com.namu.dimgame.manager.RoundGameStatus
 import com.namu.dimgame.plugin
+import com.namu.dimgame.repository.other.ParticleResources
 import com.namu.namulibrary.extension.sendDebugMessage
+import com.namu.namulibrary.particle.ParticleManager
 import com.namu.namulibrary.schedular.SchedulerManager
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
@@ -29,7 +31,7 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
     private var observerPlayerList: List<Player> = listOf()
     internal var participationPlayerList: MutableList<Player> = mutableListOf()
 
-    internal val playerGameStatusManager = com.namu.dimgame.minigame.PlayerGameStatusManager(this)
+    internal val playerGameStatusManager = PlayerGameStatusManager(this)
     private lateinit var mapScheduler: SchedulerManager
     private lateinit var onMiniGameStopCallback: (List<Player>) -> Unit
 
@@ -86,12 +88,6 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
         PlayerInteractEvent.getHandlerList().unregister(this)
         EntityDamageEvent.getHandlerList().unregister(this)
 
-        Bukkit.getOnlinePlayers().forEach {
-            rank.forEachIndexed { index: Int, player: Player ->
-                it.sendDebugMessage("${index + 1}. ${player.displayName}")
-            }
-        }
-
         gameStatus = RoundGameStatus.WAITING
 
         // 각종 스케쥴러 스탑
@@ -102,15 +98,26 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
         this.gameOption.unregister()
         this.gameItems.unregister()
 
-        // 게임모드 변경 및 로비로 텔레포트
         Bukkit.getOnlinePlayers().forEach {
-            it.gameMode = GameMode.ADVENTURE
+            it.gameMode = GameMode.SPECTATOR
             it.inventory.clear()
         }
 
-        onStop(rank)
-
-        onMiniGameStopCallback.invoke(rank)
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            ParticleResources.executeMVPParticle(mapLocations.respawn)
+            Bukkit.getOnlinePlayers().forEach {
+                Bukkit.getOnlinePlayers().forEach {
+                    it.sendTitle("1st", rank[0].displayName, 10, 60, 10)
+                }
+                rank.forEachIndexed { index, player ->
+                    it.sendMessage("[DimGame] $index. ${player.displayName}")
+                }
+            }
+            Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+                onStop(rank)
+                onMiniGameStopCallback.invoke(rank)
+            }, 60L)
+        }, 20L)
     }
 
     abstract fun onStart()

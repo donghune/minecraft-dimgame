@@ -7,6 +7,7 @@ import com.namu.dimgame.minigame.*
 import com.namu.dimgame.util.ScoreBoardManager
 import com.namu.namulibrary.schedular.SchedulerManager
 import org.bukkit.*
+import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.block.BlockBreakEvent
@@ -18,7 +19,7 @@ import java.util.*
 import kotlin.Comparator
 
 class FastCombination : DimGame<FastCombinationItem, FastCombinationScheduler>() {
-    override val name: String = "빨리 조합하기"
+    override val name: String = ChatColor.GOLD.toString() + "빨리 조합하기"
     override val description: String = "하세요!"
 
     override val mapLocations: DimGameMap = DimGameMap(
@@ -180,6 +181,19 @@ class FastCombination : DimGame<FastCombinationItem, FastCombinationScheduler>()
         }
 
         productionItems[currentItem.type] = event.whoClicked.uniqueId
+        event.whoClicked.location.world.spawn(event.whoClicked.location, Firework::class.java).apply {
+            fireworkMeta = fireworkMeta.apply {
+                addEffect(FireworkEffect.builder().with(FireworkEffect.Type.CREEPER).withColor(Color.LIME).build())
+                power = 0
+            }
+        }
+
+        event.whoClicked.location.world.playSound(
+            event.whoClicked.location,
+            Sound.ENTITY_FIREWORK_ROCKET_BLAST,
+            1f,
+            1f
+        )
         participationPlayerList.forEach { player ->
             player.sendMessage("누군가 아이템을 완성 하였습니다.")
         }

@@ -2,9 +2,11 @@ package com.namu.dimgame.minigame.battle_of_push
 
 import com.namu.dimgame.manager.PlayerStatus
 import com.namu.dimgame.minigame.*
+import com.namu.namulibrary.extension.sendInfoMessage
 
 
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.entity.Player
@@ -14,7 +16,7 @@ import java.util.*
 import kotlin.random.Random
 
 class BattleOfPush : DimGame<BattleOfPushItem, BattleOfPushScheduler>() {
-    override val name: String = "밀치기 전투"
+    override val name: String = ChatColor.DARK_PURPLE.toString() + "밀치기 전투"
     override val description: String = "동그란 섬 밖으로 상대를 내보내세요!"
     override val mapLocations: DimGameMap = DimGameMap(
         Location(Bukkit.getWorld("world"), 543.0, 97.0, 92.0),
@@ -61,6 +63,7 @@ class BattleOfPush : DimGame<BattleOfPushItem, BattleOfPushScheduler>() {
                 player.teleport(mapLocations.respawn)
                 if (!finishedPlayerList.contains(player.uniqueId)) {
                     finishedPlayerList.add(player.uniqueId)
+                    Bukkit.getOnlinePlayers().forEach { it.sendInfoMessage("${player.displayName}님이 탈락하셨습니다.") }
                 }
                 if (gameStopCondition()) {
                     finishedPlayerList.add(alivePlayers[0].uniqueId)

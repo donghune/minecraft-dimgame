@@ -2,12 +2,17 @@ package com.namu.dimgame.minigame
 
 import org.bukkit.Location
 import org.bukkit.entity.Player
+import org.bukkit.util.BoundingBox
 
 data class DimGameMap(
     val pos1: Location,
     val pos2: Location,
     val respawn: Location
 ) {
+    fun toBoundingBox(): BoundingBox {
+        return BoundingBox(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z)
+    }
+
     val startX = pos1.blockX.coerceAtMost(pos2.blockX)
     val endX = pos1.blockX.coerceAtLeast(pos2.blockX)
 
