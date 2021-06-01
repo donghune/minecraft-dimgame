@@ -1,7 +1,10 @@
 package com.namu.dimgame.minigame.bomb_spinning
 
+import com.github.namu0240.namulibrary.extension.sendInfoMessage
 import com.namu.dimgame.manager.PlayerStatus
 import com.namu.dimgame.minigame.*
+import com.namu.dimgame.plugin
+import com.github.namu0240.namulibrary.extension.sendInfoMessage
 
 
 import org.bukkit.*
@@ -17,7 +20,7 @@ import org.bukkit.potion.PotionEffectType
 import java.util.*
 
 class BombSpinning : DimGame<BombSpinningItems, BombSpinningSchedulers>() {
-    override val name: String = "폭탄돌리기"
+    override val name: String = ChatColor.DARK_AQUA.toString() + "폭탄돌리기"
     override val description: String = "폭탄을 피하세요"
     override val mapLocations: DimGameMap = DimGameMap(
         Location(Bukkit.getWorld("world"), 403.0, 101.0, 220.0),
@@ -76,6 +79,7 @@ class BombSpinning : DimGame<BombSpinningItems, BombSpinningSchedulers>() {
 
                 if (!finishedPlayerList.contains(player.uniqueId)) {
                     finishedPlayerList.add(player.uniqueId)
+                    Bukkit.getOnlinePlayers().forEach { it.sendInfoMessage("${player.displayName}님이 탈락하셨습니다.") }
                 }
 
                 if (gameStopCondition()) {
@@ -103,7 +107,8 @@ class BombSpinning : DimGame<BombSpinningItems, BombSpinningSchedulers>() {
         victim.setBombMan()
     }
 
-    private val bossBar = Bukkit.createBossBar("B O O M", BarColor.RED, BarStyle.SOLID)
+    private val bossBar =
+        Bukkit.createBossBar(NamespacedKey(plugin, "ScoreOfPush"), "B O O M", BarColor.RED, BarStyle.SOLID)
 
     fun setRandomBombMan() {
         alivePlayers.random().setBombMan()

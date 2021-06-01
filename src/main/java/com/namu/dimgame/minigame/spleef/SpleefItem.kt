@@ -37,7 +37,7 @@ class SpleefItem : DimGameItem<SpleefItem.Code>() {
 
 
         ItemBuilder()
-            .setMaterial(Material.IRON_NUGGET)
+            .setMaterial(Material.POTION)
             .setDisplay("투명")
             .setLore(listOf("2초간 투명이 부여됩니다."))
             .build()

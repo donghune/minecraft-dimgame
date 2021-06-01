@@ -14,6 +14,7 @@ class DimGamePlugin : JavaPlugin() {
 
         SchedulerManager.initializeSchedulerManager(this)
         val dimGameManager = DimGameManager()
+        dimGameManager.onEnabled()
 
         Bukkit.getOnlinePlayers().forEach {
             it.activePotionEffects.forEach { potionEffect ->
@@ -25,12 +26,12 @@ class DimGamePlugin : JavaPlugin() {
             register("dimgame") {
                 then("start") {
                     executes {
-                        val result = dimGameManager.start()
+                        dimGameManager.start()
                     }
                 }
                 then("stop") {
                     executes {
-                        val result = dimGameManager.stop()
+                        dimGameManager.stop()
                     }
                 }
                 then("skip") {
@@ -43,5 +44,10 @@ class DimGamePlugin : JavaPlugin() {
     }
 
     override fun onDisable() {
+        Bukkit.getOnlinePlayers().forEach { player ->
+            Bukkit.getBossBars().forEach { keyedBossBar ->
+                keyedBossBar.removePlayer(player)
+            }
+        }
     }
 }

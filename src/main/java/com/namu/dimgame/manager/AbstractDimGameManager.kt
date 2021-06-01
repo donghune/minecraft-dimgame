@@ -1,9 +1,9 @@
 package com.namu.dimgame.manager
 
-import com.namu.dimgame.repository.participant.AbstractParticipantRepository
-import com.namu.dimgame.repository.score.AbstractPlayerScoreRepository
 import com.namu.dimgame.minigame.DimGame
 import com.namu.dimgame.plugin
+import com.namu.dimgame.repository.participant.AbstractParticipantRepository
+import com.namu.dimgame.repository.score.AbstractPlayerScoreRepository
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.event.EventHandler
@@ -36,10 +36,12 @@ abstract class AbstractDimGameManager : Listener {
     abstract val participantRepository: AbstractParticipantRepository
 
     abstract var gameState: GameStatus
-    abstract var roundGameState : RoundGameStatus
-    abstract var round : Int
+    abstract var roundGameState: RoundGameStatus
+    abstract var round: Int
     lateinit var dimGameList: List<DimGame<*, *>>
     lateinit var currentDimGame: DimGame<*, *>
+
+    abstract fun onEnabled()
 
     abstract fun start()
 
@@ -47,6 +49,6 @@ abstract class AbstractDimGameManager : Listener {
 
     abstract fun skip()
 
-    abstract fun startRound()
+    abstract fun startRound(countdownTime: Int)
 
 }

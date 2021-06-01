@@ -16,6 +16,7 @@ class PlayerScoreRepository : AbstractPlayerScoreRepository() {
     }
 
     override fun getRank(): SortedMap<UUID, Int> {
+        println(uuidByScore)
         return uuidByScore.toSortedMap { player1, player2 ->
             return@toSortedMap if (getPlayerScore(player1) == getPlayerScore(player2)) {
                 -1
@@ -38,8 +39,8 @@ class PlayerScoreRepository : AbstractPlayerScoreRepository() {
     }
 
     override fun getMVPPlayer(): Player {
-        val maxScore = uuidByScore.values.max()
-        return Bukkit.getPlayer(uuidByScore.keys.toList()[0])!!
+        val maxScore = uuidByScore.values.maxOrNull() ?: 0
+        return Bukkit.getPlayer(uuidByScore.filter { it.value == maxScore }.keys.first())!!
     }
 
     override fun showMVPPlayer() {

@@ -5,6 +5,7 @@ import com.namu.dimgame.manager.PlayerStatus
 import com.github.namu0240.namulibrary.schedular.SchedulerManager
 import org.bukkit.GameMode
 import org.bukkit.Particle
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -73,7 +74,9 @@ class BombSpinningSchedulers(
         SchedulerManager {
             doing { _ ->
                 dimGame.getBombMan()?.let {
-                    it.world.spawnParticle(Particle.LAVA, it.location.add(0.0, 2.0, 0.0), 5)
+                    val location = it.location.add(0.0, 2.0, 0.0)
+                    it.world.spawnParticle(Particle.LAVA, location, 5)
+                    it.world.playSound(location, Sound.ENTITY_TNT_PRIMED, 0.5f, 1f)
                 }
             }
         }.registerScheduler(Code.BOMB_MAC_PARTICLE)

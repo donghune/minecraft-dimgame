@@ -1,12 +1,13 @@
 package com.namu.dimgame.minigame.spleef
 
 
-import com.namu.dimgame.manager.PlayerStatus
-import com.namu.dimgame.minigame.*
-
-
 import com.github.namu0240.namulibrary.extension.sendInfoMessage
+import com.namu.dimgame.manager.PlayerStatus
+import com.namu.dimgame.minigame.DimGame
+import com.namu.dimgame.minigame.DimGameMap
+import com.namu.dimgame.minigame.DimGameOption
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.Material
@@ -21,7 +22,7 @@ import kotlin.random.Random
 
 class Spleef : DimGame<SpleefItem, SpleefSchedulers>() {
 
-    override val name: String = "스플리프"
+    override val name: String = ChatColor.RED.toString() + "스플리프"
     override val description: String =
         "한 겹으로 2층에 걸쳐 쌓여있는 사각형 눈블럭 맵에서 플레이어들은 서로를 떨어뜨려야만 하는 게임입니다.\n가장 오래 살아남았던 3등까지 카운트 됩니다."
 
@@ -48,8 +49,6 @@ class Spleef : DimGame<SpleefItem, SpleefSchedulers>() {
     }
 
     override fun onStop(rank: List<Player>) {
-        Bukkit.broadcastMessage("rank = [${rank}]")
-
         BlockBreakEvent.getHandlerList().unregister(this)
         PlayerInteractEvent.getHandlerList().unregister(this)
 
@@ -65,7 +64,7 @@ class Spleef : DimGame<SpleefItem, SpleefSchedulers>() {
         }
     }
 
-    val finishedPlayerList = mutableListOf<UUID>()
+    private val finishedPlayerList = mutableListOf<UUID>()
 
     override fun onChangedPlayerState(player: Player, playerState: PlayerStatus) {
 
@@ -118,6 +117,6 @@ class Spleef : DimGame<SpleefItem, SpleefSchedulers>() {
             return
         }
 
-        event.player.inventory.addItem(gameItems.getItemList().random())
+        event.player.inventory.addItem(gameItems.getActionItemList().random())
     }
 }

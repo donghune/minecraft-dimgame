@@ -10,26 +10,34 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.util.BoundingBox
 import java.util.*
 
 class OXQuiz : DimGame<OXQuizItem, OXQuizScheduler>() {
-    override val name: String = "OX Quiz"
+    override val name: String = ChatColor.YELLOW.toString() + "OX 퀴즈"
     override val description: String = "살아남으세요!"
 
     override val mapLocations: DimGameMap = DimGameMap(
-            Location(Bukkit.getWorld("world"), 348.0, 95.0, 269.0),
-            Location(Bukkit.getWorld("world"), 399.0, 79.0, 299.0),
-            Location(Bukkit.getWorld("world"), 373.0, 85.0, 284.0),
+        Location(Bukkit.getWorld("world"), 348.0, 95.0, 269.0),
+        Location(Bukkit.getWorld("world"), 399.0, 79.0, 299.0),
+        Location(Bukkit.getWorld("world"), 373.0, 85.0, 284.0),
     )
 
-    internal val redCenterLocation = Location(Bukkit.getWorld("world"), 384.0, 85.0, 284.0)
-    internal val blueCenterLocation = Location(Bukkit.getWorld("world"), 363.0, 85.0, 284.0)
+    internal val redArea = BoundingBox(
+        374.0, 85.0, 294.0,
+        394.0, 85.0, 274.0
+    )
+
+    internal val blueArea = BoundingBox(
+        353.0, 85.0, 274.0,
+        373.0, 85.0, 294.0
+    )
 
     override val gameOption: DimGameOption = DimGameOption(
-            isBlockPlace = false,
-            isBlockBreak = false,
-            isCraft = false,
-            isAttack = false
+        isBlockPlace = false,
+        isBlockBreak = false,
+        isCraft = false,
+        isAttack = false
     )
 
     override val defaultItems: List<ItemStack> = emptyList()
@@ -41,15 +49,11 @@ class OXQuiz : DimGame<OXQuizItem, OXQuizScheduler>() {
             it.teleport(mapLocations.respawn)
             it.gameMode = GameMode.ADVENTURE
         }
-
         gameSchedulers.getScheduler(OXQuizScheduler.Code.MAIN).runSecond(15, 5)
     }
 
     override fun onStop(rank: List<Player>) {
         AsyncPlayerChatEvent.getHandlerList().unregister(this)
-        participationPlayerList.forEach {
-            it.gameMode = GameMode.SURVIVAL
-        }
     }
 
     override fun onChangedPlayerState(player: Player, playerState: PlayerStatus) {
