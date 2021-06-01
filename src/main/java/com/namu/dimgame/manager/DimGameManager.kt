@@ -7,7 +7,7 @@ import com.namu.dimgame.repository.participant.AbstractParticipantRepository
 import com.namu.dimgame.repository.participant.ParticipantStatusRepository
 import com.namu.dimgame.repository.score.AbstractPlayerScoreRepository
 import com.namu.dimgame.repository.score.PlayerScoreRepository
-import com.namu.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
 import org.bukkit.Bukkit
 import org.bukkit.Location
 

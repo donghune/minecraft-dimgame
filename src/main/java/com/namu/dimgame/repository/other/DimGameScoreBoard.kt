@@ -1,7 +1,7 @@
 package com.namu.dimgame.repository.other
 
+import com.github.namu0240.namulibrary.scoreboard.ScoreBoardManager
 import com.namu.dimgame.repository.score.AbstractPlayerScoreRepository
-import com.namu.dimgame.util.ScoreBoardManager
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 

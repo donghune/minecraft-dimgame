@@ -1,8 +1,8 @@
 package com.namu.dimgame.minigame
 
 import com.namu.dimgame.plugin
-import com.namu.namulibrary.nms.addNBTTagCompound
-import com.namu.namulibrary.nms.getNBTTagCompound
+import com.github.namu0240.namulibrary.nms.addNBTTagCompound
+import com.github.namu0240.namulibrary.nms.getNBTTagCompound
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

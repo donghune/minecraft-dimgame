@@ -14,6 +14,7 @@ targetCompatibility = '1.8'
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         name = 'papermc-repo'
         url = 'https://papermc.io/repo/repository/maven-public/'
@@ -33,12 +34,21 @@ configurations {
 }
 
 dependencies {
-    implementation 'com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'com.github.namu0240:namulibrary:5.0.4'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.github.namu0240:minecraft-namulibrary:4.0.2'
-    shade 'com.github.noonmaru:kommand:0.6.3'
+
+    implementation "org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT"
     implementation 'com.github.noonmaru:kommand:0.6.3'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.4.3"
+    implementation "com.github.shynixn.mccoroutine:mccoroutine-bukkit-api:1.4.0"
+    implementation "com.github.shynixn.mccoroutine:mccoroutine-bukkit-core:1.4.0"
+
+    shade 'com.github.noonmaru:kommand:0.6.3'
+    shade "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3"
+    shade "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.4.3"
+    shade "com.github.shynixn.mccoroutine:mccoroutine-bukkit-api:1.4.0"
+    shade "com.github.shynixn.mccoroutine:mccoroutine-bukkit-core:1.4.0"
 }
 
 processResources {

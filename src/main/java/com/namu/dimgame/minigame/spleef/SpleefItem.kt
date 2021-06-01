@@ -1,7 +1,7 @@
 package com.namu.dimgame.minigame.spleef
 
 import com.namu.dimgame.minigame.DimGameItem
-import com.namu.namulibrary.extension.ItemBuilder
+import com.github.namu0240.namulibrary.extension.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.potion.PotionEffect
@@ -12,7 +12,7 @@ class SpleefItem : DimGameItem<SpleefItem.Code>() {
     init {
         ItemBuilder().setMaterial(Material.DIAMOND_SHOVEL)
             .build()
-            .apply { itemMeta.addEnchant(Enchantment.DIG_SPEED, 4, false) }
+            .apply { itemMeta!!.addEnchant(Enchantment.DIG_SPEED, 4, false) }
             .registerAction(Code.SHOVEL, false)
 
         ItemBuilder()

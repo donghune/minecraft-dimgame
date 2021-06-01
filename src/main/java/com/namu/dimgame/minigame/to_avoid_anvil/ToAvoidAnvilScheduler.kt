@@ -1,8 +1,8 @@
 package com.namu.dimgame.minigame.to_avoid_anvil
 
 import com.namu.dimgame.minigame.DimGameScheduler
-import com.namu.namulibrary.extension.replaceChatColorCode
-import com.namu.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.extension.replaceChatColorCode
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Bukkit

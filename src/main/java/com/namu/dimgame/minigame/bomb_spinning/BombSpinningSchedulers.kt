@@ -2,7 +2,7 @@ package com.namu.dimgame.minigame.bomb_spinning
 
 import com.namu.dimgame.minigame.DimGameScheduler
 import com.namu.dimgame.manager.PlayerStatus
-import com.namu.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
 import org.bukkit.GameMode
 import org.bukkit.Particle
 import org.bukkit.entity.Player

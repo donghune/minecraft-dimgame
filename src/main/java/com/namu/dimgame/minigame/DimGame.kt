@@ -3,8 +3,8 @@ package com.namu.dimgame.minigame
 import com.namu.dimgame.manager.PlayerStatus
 import com.namu.dimgame.manager.RoundGameStatus
 import com.namu.dimgame.plugin
-import com.namu.namulibrary.extension.sendDebugMessage
-import com.namu.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.extension.sendDebugMessage
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Player

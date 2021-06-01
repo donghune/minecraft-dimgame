@@ -4,8 +4,8 @@ package com.namu.dimgame.minigame.jump_map
 import com.namu.dimgame.manager.PlayerStatus
 import com.namu.dimgame.minigame.*
 import com.namu.dimgame.plugin
-import com.namu.namulibrary.extension.replaceChatColorCode
-import com.namu.namulibrary.extension.sendInfoMessage
+import com.github.namu0240.namulibrary.extension.replaceChatColorCode
+import com.github.namu0240.namulibrary.extension.sendInfoMessage
 import org.bukkit.*
 import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
@@ -78,14 +78,14 @@ class JumpMap : DimGame<JumpMapItem, JumpMapScheduler>() {
 
         finishedPlayerList.add(event.player.uniqueId)
 
-        block.location.world.spawn(block.location, Firework::class.java).apply {
+        block.location.world!!.spawn(block.location, Firework::class.java).apply {
             fireworkMeta = fireworkMeta.apply {
                 addEffect(FireworkEffect.builder().with(FireworkEffect.Type.CREEPER).withColor(Color.LIME).build())
                 power = 0
             }
         }
 
-        block.location.world.playSound(
+        block.location.world!!.playSound(
                 block.location,
                 Sound.ENTITY_FIREWORK_ROCKET_BLAST,
                 1f,

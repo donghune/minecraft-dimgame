@@ -1,6 +1,6 @@
 package com.namu.dimgame.util
 
-import com.namu.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
 import org.bukkit.entity.Player
 
 fun Player.clearChat() {

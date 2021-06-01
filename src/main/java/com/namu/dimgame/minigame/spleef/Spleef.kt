@@ -5,7 +5,7 @@ import com.namu.dimgame.manager.PlayerStatus
 import com.namu.dimgame.minigame.*
 
 
-import com.namu.namulibrary.extension.sendInfoMessage
+import com.github.namu0240.namulibrary.extension.sendInfoMessage
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Location

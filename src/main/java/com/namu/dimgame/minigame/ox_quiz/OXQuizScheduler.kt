@@ -2,7 +2,7 @@ package com.namu.dimgame.minigame.ox_quiz
 
 import com.namu.dimgame.minigame.DimGameScheduler
 import com.namu.dimgame.util.clearChat
-import com.namu.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
 import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.FireworkEffect
@@ -43,7 +43,7 @@ class OXQuizScheduler(dimGame: OXQuiz) : DimGameScheduler<OXQuizScheduler.Code>(
                     dimGame.redCenterLocation
                 }
 
-                answerLocation.world.apply {
+                answerLocation.world!!.apply {
                     playSound(answerLocation, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1f)
 
                     spawn(answerLocation, Firework::class.java).apply {

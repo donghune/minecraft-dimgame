@@ -1,7 +1,7 @@
 package com.namu.dimgame.minigame
 
 import com.namu.dimgame.util.stopSchedulerNotWithFinish
-import com.namu.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
 
 abstract class DimGameScheduler<ID>(
         protected val dimGame: DimGame<*, *>

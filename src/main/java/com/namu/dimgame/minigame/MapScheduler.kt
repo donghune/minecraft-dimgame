@@ -2,7 +2,7 @@ package com.namu.dimgame.minigame
 
 import com.namu.dimgame.manager.PlayerStatus
 import com.namu.dimgame.manager.RoundGameStatus
-import com.namu.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
 
 fun mapScheduler(dimGame: DimGame<*, *>) = SchedulerManager {
     doing {

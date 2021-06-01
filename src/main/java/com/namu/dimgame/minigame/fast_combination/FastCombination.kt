@@ -1,11 +1,9 @@
 package com.namu.dimgame.minigame.fast_combination
 
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.scoreboard.ScoreBoardManager
 import com.namu.dimgame.manager.PlayerStatus
 import com.namu.dimgame.minigame.*
-
-
-import com.namu.dimgame.util.ScoreBoardManager
-import com.namu.namulibrary.schedular.SchedulerManager
 import org.bukkit.*
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler

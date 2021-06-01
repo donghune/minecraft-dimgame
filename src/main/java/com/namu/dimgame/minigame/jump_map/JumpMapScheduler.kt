@@ -1,7 +1,7 @@
 package com.namu.dimgame.minigame.jump_map
 
 import com.namu.dimgame.minigame.DimGameScheduler
-import com.namu.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
 
 class JumpMapScheduler(dimGame: JumpMap) : DimGameScheduler<JumpMapScheduler.Code>(dimGame) {
 

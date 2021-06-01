@@ -1,7 +1,7 @@
 package com.namu.dimgame.minigame.battle_of_push
 
 import com.namu.dimgame.minigame.DimGameItem
-import com.namu.namulibrary.extension.ItemBuilder
+import com.github.namu0240.namulibrary.extension.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.potion.PotionEffect

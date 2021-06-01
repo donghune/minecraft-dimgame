@@ -3,7 +3,7 @@ package com.namu.dimgame.minigame.to_avoid_anvil
 
 import com.namu.dimgame.manager.PlayerStatus
 import com.namu.dimgame.minigame.*
-import com.namu.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
 import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.entity.EntityType

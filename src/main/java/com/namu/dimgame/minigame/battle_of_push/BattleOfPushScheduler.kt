@@ -1,7 +1,7 @@
 package com.namu.dimgame.minigame.battle_of_push
 
 import com.namu.dimgame.minigame.DimGameScheduler
-import com.namu.namulibrary.schedular.SchedulerManager
+import com.github.namu0240.namulibrary.schedular.SchedulerManager
 
 class BattleOfPushScheduler(
     dimGame: BattleOfPush
