@@ -1,10 +1,11 @@
 package com.github.donghune.dimgame.minigame
 
-import com.github.donghune.dimgame.manager.PlayerStatus
+import com.github.donghune.dimgame.manager.PlayerMiniGameStatus
 import com.github.donghune.dimgame.manager.RoundGameStatus
+import com.github.donghune.dimgame.repository.ingame.miniGameStatus
 import com.github.donghune.namulibrary.schedular.SchedulerManager
 
-fun mapScheduler(dimGame: DimGame<*, *>) = SchedulerManager {
+fun mapScheduler(dimGame: MiniGame<*, *>) = SchedulerManager {
     doing {
         dimGame.participationPlayerList.forEach {
             if (dimGame.mapLocations.isIn(it)) {
@@ -15,7 +16,7 @@ fun mapScheduler(dimGame: DimGame<*, *>) = SchedulerManager {
                 return@forEach
             }
 
-            dimGame.playerGameStatusManager.setStatus(it.uniqueId, PlayerStatus.DIE)
+            it.miniGameStatus = PlayerMiniGameStatus.DIE
         }
     }
 }

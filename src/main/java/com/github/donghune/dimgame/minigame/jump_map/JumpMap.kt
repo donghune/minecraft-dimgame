@@ -1,42 +1,46 @@
 package com.github.donghune.dimgame.minigame.jump_map
 
 
-import com.github.donghune.dimgame.manager.PlayerStatus
+import com.github.donghune.dimgame.events.PlayerMiniGameDieEvent
+import com.github.donghune.dimgame.events.PlayerStatusChangeEvent
+import com.github.donghune.dimgame.manager.PlayerMiniGameStatus
 import com.github.donghune.dimgame.minigame.*
 import com.github.donghune.dimgame.plugin
+import com.github.donghune.dimgame.repository.ingame.miniGameStatus
 import com.github.donghune.namulibrary.extension.replaceChatColorCode
 import com.github.donghune.namulibrary.extension.sendInfoMessage
 import org.bukkit.*
+import org.bukkit.boss.BarColor
+import org.bukkit.boss.BarStyle
+import org.bukkit.boss.BossBar
 import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.util.BoundingBox
 import java.util.*
 
-class JumpMap : DimGame<JumpMapItem, JumpMapScheduler>() {
-
-    private val goalBlockLocation = Location(Bukkit.getWorld("world"), 267.0, 97.0, 110.0)
-
-    override val name: String = ChatColor.DARK_RED.toString() + "점프맵"
-    override val description: String = "누구보다 빨리 맵의 끝에 있는 에메랄드 블럭을 터치하세요!"
-
-    override val mapLocations: DimGameMap = DimGameMap(
-            Location(Bukkit.getWorld("world"), 256.0, 112.0, 213.0),
-            Location(Bukkit.getWorld("world"), 279.0, 89.0, 105.0),
-            Location(Bukkit.getWorld("world"), 267.0, 96.0, 208.0)
+class JumpMap : MiniGame<JumpMapItem, JumpMapScheduler>(
+    name = ChatColor.DARK_RED.toString() + "점프맵",
+    description = "누구보다 빨리 맵의 끝에 있는 에메랄드 블럭을 터치하세요!",
+    mapLocations = DimGameMap(
+        BoundingBox(256.0, 112.0, 213.0, 279.0, 89.0, 105.0),
+        Location(Bukkit.getWorld("world"), 267.0, 96.0, 208.0)
+    ),
+    gameOption = DimGameOption(
+        isBlockPlace = false,
+        isBlockBreak = false,
+        isCraft = false,
+        isAttack = false,
+        isChat = true,
     )
+) {
 
-    override val gameOption: DimGameOption = DimGameOption(
-            isBlockPlace = false,
-            isBlockBreak = false,
-            isCraft = false,
-            isAttack = false,
-    )
-
-    override val defaultItems: List<ItemStack> = listOf()
     override val gameItems: JumpMapItem = JumpMapItem()
     override val gameSchedulers: JumpMapScheduler = JumpMapScheduler(this)
+
+    private val goalBlockLocation = Location(Bukkit.getWorld("world"), 267.0, 97.0, 110.0)
     private val finishedPlayerList = mutableListOf<UUID>()
 
     override fun onStart() {
@@ -48,16 +52,12 @@ class JumpMap : DimGame<JumpMapItem, JumpMapScheduler>() {
         gameSchedulers.getScheduler(JumpMapScheduler.Code.RANDOM_ITEM).stopScheduler()
     }
 
-    override fun onChangedPlayerState(player: Player, playerState: PlayerStatus) {
-        when (playerState) {
-            PlayerStatus.ALIVE -> {
+    @EventHandler
+    fun onPlayerMiniGameDieEvent(event: PlayerMiniGameDieEvent) {
+        val player = event.player
 
-            }
-            PlayerStatus.DIE -> {
-                player.teleport(mapLocations.respawn)
-                playerGameStatusManager.setStatus(player.uniqueId, PlayerStatus.ALIVE)
-            }
-        }
+        player.teleport(mapLocations.respawn)
+        player.miniGameStatus = PlayerMiniGameStatus.ALIVE
     }
 
     @EventHandler
@@ -86,10 +86,10 @@ class JumpMap : DimGame<JumpMapItem, JumpMapScheduler>() {
         }
 
         block.location.world!!.playSound(
-                block.location,
-                Sound.ENTITY_FIREWORK_ROCKET_BLAST,
-                1f,
-                1f
+            block.location,
+            Sound.ENTITY_FIREWORK_ROCKET_BLAST,
+            1f,
+            1f
         )
 
         Bukkit.getOnlinePlayers().forEach {

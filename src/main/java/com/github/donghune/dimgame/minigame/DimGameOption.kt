@@ -1,6 +1,7 @@
 package com.github.donghune.dimgame.minigame
 
 import com.github.donghune.dimgame.plugin
+import io.papermc.paper.event.player.AsyncChatEvent
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -11,10 +12,11 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.inventory.CraftItemEvent
 
 data class DimGameOption(
-        val isBlockPlace: Boolean,
-        val isBlockBreak: Boolean,
-        val isCraft: Boolean,
-        val isAttack: Boolean,
+    val isBlockPlace: Boolean,
+    val isBlockBreak: Boolean,
+    val isCraft: Boolean,
+    val isAttack: Boolean,
+    val isChat: Boolean,
 ) : Listener {
 
     fun register() {
@@ -26,10 +28,12 @@ data class DimGameOption(
         BlockBreakEvent.getHandlerList().unregister(this)
         EntityDamageByEntityEvent.getHandlerList().unregister(this)
         CraftItemEvent.getHandlerList().unregister(this)
+        AsyncChatEvent.getHandlerList().unregister(this)
     }
 
     @EventHandler
     fun onOptionalBlockPlaceEvent(event: BlockPlaceEvent) {
+
         if (isBlockPlace) {
             return
         }
@@ -39,6 +43,7 @@ data class DimGameOption(
 
     @EventHandler
     fun onOptionalBlockBreakEvent(event: BlockBreakEvent) {
+
         if (isBlockBreak) {
             return
         }
@@ -48,6 +53,7 @@ data class DimGameOption(
 
     @EventHandler
     fun onOptionalEntityDamageByEntityEvent(event: EntityDamageByEntityEvent) {
+
         if (event.damager !is Player) {
             return
         }
@@ -65,7 +71,22 @@ data class DimGameOption(
 
     @EventHandler
     fun onOptionalCraftItemEvent(event: CraftItemEvent) {
+
         if (isCraft) {
+            return
+        }
+
+        event.isCancelled = true
+    }
+
+    @EventHandler
+    fun onPlayerChatEvent(event: AsyncChatEvent) {
+
+        if (event.player.isOp) {
+            return
+        }
+
+        if (isChat) {
             return
         }
 

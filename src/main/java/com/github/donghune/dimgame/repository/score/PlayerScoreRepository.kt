@@ -4,7 +4,7 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.*
 
-class PlayerScoreRepository : AbstractPlayerScoreRepository() {
+object PlayerScoreRepository : AbstractPlayerScoreRepository() {
 
     private val uuidByScore: MutableMap<UUID, Int> = mutableMapOf()
 

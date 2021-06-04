@@ -4,7 +4,7 @@ import com.github.donghune.dimgame.util.stopSchedulerNotWithFinish
 import com.github.donghune.namulibrary.schedular.SchedulerManager
 
 abstract class DimGameScheduler<ID>(
-        protected val dimGame: DimGame<*, *>
+        protected val dimGame: MiniGame<*, *>
 ) {
 
     private val idByScheduler = mutableMapOf<ID, SchedulerManager>()

@@ -1,12 +1,18 @@
 package com.github.donghune.dimgame.minigame
 
-import com.github.donghune.dimgame.manager.PlayerStatus
+import com.github.donghune.dimgame.manager.PlayerMiniGameStatus
 import com.github.donghune.dimgame.manager.RoundGameStatus
 import com.github.donghune.dimgame.plugin
+import com.github.donghune.dimgame.repository.ingame.PlayerMiniGameStatusRepository
+import com.github.donghune.dimgame.repository.ingame.miniGameStatus
 import com.github.donghune.dimgame.repository.other.ParticleResources
 import com.github.donghune.namulibrary.schedular.SchedulerManager
+import com.github.shynixn.mccoroutine.registerSuspendingEvents
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
+import org.bukkit.boss.BarColor
+import org.bukkit.boss.BarStyle
+import org.bukkit.boss.BossBar
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -15,26 +21,27 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 
-abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> : Listener {
+abstract class MiniGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>>(
+    val name: String,
+    val description: String,
+    val mapLocations: DimGameMap,
+    val gameOption: DimGameOption,
+) : Listener {
 
-    abstract val name: String
-    abstract val description: String
-    abstract val mapLocations: DimGameMap
-    abstract val gameOption: DimGameOption
-    abstract val defaultItems: List<ItemStack>
     abstract val gameItems: ITEM
     abstract val gameSchedulers: SCHEDULER
+
+    open val bossBar: BossBar = Bukkit.createBossBar(description, BarColor.RED, BarStyle.SOLID)
 
     internal var gameStatus: RoundGameStatus = RoundGameStatus.WAITING
     private var observerPlayerList: List<Player> = listOf()
     internal var participationPlayerList: MutableList<Player> = mutableListOf()
 
-    internal val playerGameStatusManager = PlayerGameStatusManager(this)
     private lateinit var mapScheduler: SchedulerManager
     private lateinit var onMiniGameStopCallback: (List<Player>) -> Unit
 
     val alivePlayers
-        get() = participationPlayerList.filter { playerGameStatusManager.getStatus(it.uniqueId) == PlayerStatus.ALIVE }
+        get() = participationPlayerList.filter { it.miniGameStatus == PlayerMiniGameStatus.ALIVE }
 
     fun skipGame() {
         stopGame(participationPlayerList)
@@ -43,7 +50,7 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
     fun startGame(
         participationPlayerList: List<Player>,
         observerPlayerList: List<Player>,
-        onMiniGameStopCallback: (List<Player>) -> Unit = {}
+        onMiniGameStopCallback: (List<Player>) -> Unit = {},
     ) {
         // 전역 변수 등록
         this.onMiniGameStopCallback = onMiniGameStopCallback
@@ -62,8 +69,8 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
             it.teleport(mapLocations.respawn)
             it.gameMode = GameMode.SURVIVAL
             it.inventory.clear()
-            it.inventory.addItem(*defaultItems.toTypedArray())
-            playerGameStatusManager.setStatus(it.uniqueId, PlayerStatus.ALIVE)
+            it.miniGameStatus = PlayerMiniGameStatus.ALIVE
+            bossBar.addPlayer(it)
         }
 
         // 옵저버도 동일하게 텔레포트
@@ -79,7 +86,7 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
 
         onStart()
 
-        Bukkit.getPluginManager().registerEvents(this, plugin)
+        Bukkit.getPluginManager().registerSuspendingEvents(this, plugin)
     }
 
     fun stopGame(rank: List<Player>) {
@@ -96,6 +103,8 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
         this.gameOption.unregister()
         this.gameItems.unregister()
 
+        bossBar.removeAll()
+
         Bukkit.getOnlinePlayers().forEach {
             it.gameMode = GameMode.SPECTATOR
             it.inventory.clear()
@@ -105,10 +114,10 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
             ParticleResources.executeMVPParticle(mapLocations.respawn)
             Bukkit.getOnlinePlayers().forEach {
                 Bukkit.getOnlinePlayers().forEach {
-                    it.sendTitle("1st", rank[0].displayName, 10, 60, 10)
+                    it.sendTitle("1st", rank[0].name, 10, 60, 10)
                 }
                 rank.forEachIndexed { index, player ->
-                    it.sendMessage("[DimGame] $index. ${player.displayName}")
+                    it.sendMessage("[DimGame] $index. ${player.name}")
                 }
             }
             Bukkit.getScheduler().runTaskLater(plugin, Runnable {
@@ -120,7 +129,6 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
 
     abstract fun onStart()
     abstract fun onStop(rank: List<Player>)
-    abstract fun onChangedPlayerState(player: Player, playerState: PlayerStatus)
     abstract fun gameStopCondition(): Boolean
 
     @EventHandler
@@ -133,7 +141,7 @@ abstract class DimGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>> :
     @EventHandler
     fun onPlayerQuitEvent(event: PlayerQuitEvent) {
         participationPlayerList.removeIf { it.uniqueId == event.player.uniqueId }
-        playerGameStatusManager.removeStatus(event.player.uniqueId)
+        PlayerMiniGameStatusRepository.removeStatus(event.player.uniqueId)
     }
 
 }

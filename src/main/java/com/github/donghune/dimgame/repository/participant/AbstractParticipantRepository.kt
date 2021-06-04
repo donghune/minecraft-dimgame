@@ -1,5 +1,6 @@
 package com.github.donghune.dimgame.repository.participant
 
+import com.github.donghune.dimgame.manager.ParticipantStatus
 import org.bukkit.entity.Player
 import java.util.*
 

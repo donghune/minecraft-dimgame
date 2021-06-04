@@ -1,10 +1,11 @@
 package com.github.donghune.dimgame.repository.participant
 
+import com.github.donghune.dimgame.manager.ParticipantStatus
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.*
 
-class ParticipantStatusRepository : AbstractParticipantRepository() {
+object ParticipantStatusRepository : AbstractParticipantRepository() {
 
     private val uuidByParticipantStatus: MutableMap<UUID, ParticipantStatus> = mutableMapOf()
 

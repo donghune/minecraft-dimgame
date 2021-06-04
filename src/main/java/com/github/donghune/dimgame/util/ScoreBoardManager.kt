@@ -1,5 +1,7 @@
 package com.github.donghune.dimgame.util
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.scoreboard.DisplaySlot
@@ -8,17 +10,17 @@ import org.bukkit.scoreboard.Scoreboard
 
 class ScoreBoardManager(
     var objectiveName: String,
-    var boardDisplaySlot: DisplaySlot = DisplaySlot.SIDEBAR
+    var boardDisplaySlot: DisplaySlot = DisplaySlot.SIDEBAR,
 ) {
 
-    private var scoreboard: Scoreboard = Bukkit.getScoreboardManager()!!.newScoreboard
+    private var scoreboard: Scoreboard = Bukkit.getScoreboardManager().newScoreboard
 
     fun setBoardContent(values: List<String>) {
         scoreboard.getObjective(objectiveName)?.unregister()
         scoreboard.registerNewObjective(
             objectiveName,
             "Dummy",
-            objectiveName
+            Component.text(objectiveName)
         ).apply {
             displaySlot = boardDisplaySlot
             values.mapIndexed { index, value ->
@@ -36,7 +38,7 @@ class ScoreBoardManager(
     }
 
     fun invisibleScoreboard(player: Player) {
-        player.scoreboard = Bukkit.getScoreboardManager()!!.newScoreboard
+        player.scoreboard = Bukkit.getScoreboardManager().newScoreboard
     }
 
     private fun getEmptyLine(index: Int): String {

@@ -1,6 +1,6 @@
 package com.github.donghune.dimgame.manager
 
-enum class PlayerStatus {
+enum class PlayerMiniGameStatus {
     ALIVE, DIE;
 }
 
@@ -10,4 +10,8 @@ enum class RoundGameStatus {
 
 enum class GameStatus {
     NOT_PLAYING, PLAYING,
+}
+
+enum class ParticipantStatus {
+    PARTICIPANT, OBSERVER
 }

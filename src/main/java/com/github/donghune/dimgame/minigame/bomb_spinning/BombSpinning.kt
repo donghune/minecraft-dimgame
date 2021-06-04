@@ -1,7 +1,9 @@
 package com.github.donghune.dimgame.minigame.bomb_spinning
 
-import com.github.donghune.dimgame.manager.PlayerStatus
+import com.github.donghune.dimgame.events.PlayerMiniGameDieEvent
+import com.github.donghune.dimgame.manager.PlayerMiniGameStatus
 import com.github.donghune.dimgame.minigame.*
+import com.github.donghune.dimgame.minigame.resource.PotionsEffects
 import com.github.donghune.dimgame.plugin
 import com.github.donghune.namulibrary.extension.sendInfoMessage
 
@@ -9,6 +11,7 @@ import com.github.donghune.namulibrary.extension.sendInfoMessage
 import org.bukkit.*
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
+import org.bukkit.boss.BossBar
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.player.PlayerInteractEntityEvent
@@ -16,44 +19,33 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import org.bukkit.util.BoundingBox
+import org.checkerframework.checker.nullness.qual.Nullable
 import java.util.*
 
-class BombSpinning : DimGame<BombSpinningItems, BombSpinningSchedulers>() {
-    override val name: String = ChatColor.DARK_AQUA.toString() + "폭탄돌리기"
-    override val description: String = "폭탄을 피하세요"
-    override val mapLocations: DimGameMap = DimGameMap(
-        Location(Bukkit.getWorld("world"), 403.0, 101.0, 220.0),
-        Location(Bukkit.getWorld("world"), 379.0, 82.0, 244.0),
+class BombSpinning : MiniGame<BombSpinningItems, BombSpinningSchedulers>(
+    name = ChatColor.DARK_AQUA.toString() + "폭탄돌리기",
+    description = "폭탄을 피하세요",
+    mapLocations = DimGameMap(
+        BoundingBox(403.0, 101.0, 220.0, 379.0, 82.0, 244.0),
         Location(Bukkit.getWorld("world"), 391.0, 86.0, 232.0),
-    )
-    override val gameOption: DimGameOption = DimGameOption(
+    ),
+    gameOption = DimGameOption(
         isBlockPlace = false,
         isBlockBreak = false,
         isCraft = false,
-        isAttack = false
+        isAttack = false,
+        isChat = true
     )
-    override val defaultItems: List<ItemStack> = emptyList()
+) {
+
     override val gameItems: BombSpinningItems = BombSpinningItems()
     override val gameSchedulers: BombSpinningSchedulers = BombSpinningSchedulers(this)
+    override val bossBar: BossBar = Bukkit.createBossBar("B O O M", BarColor.RED, BarStyle.SOLID)
 
     private val finishedPlayerList = mutableListOf<UUID>()
 
     override fun onStart() {
-        participationPlayerList.forEach {
-            it.teleport(mapLocations.respawn)
-            it.addPotionEffect(
-                PotionEffect(
-                    PotionEffectType.SLOW_DIGGING,
-                    Int.MAX_VALUE,
-                    0,
-                    false,
-                    false,
-                    false
-                )
-            )
-            bossBar.addPlayer(it)
-        }
-
         gameSchedulers.getScheduler(BombSpinningSchedulers.Code.SET_BOMB_MAN).runSecond(1, 1)
     }
 
@@ -67,25 +59,19 @@ class BombSpinning : DimGame<BombSpinningItems, BombSpinningSchedulers>() {
         }
     }
 
-    override fun onChangedPlayerState(player: Player, playerState: PlayerStatus) {
-        when (playerState) {
-            PlayerStatus.ALIVE -> {
+    @EventHandler
+    fun onPlayerMiniGameDieEvent(event: PlayerMiniGameDieEvent) {
+        val player = event.player
 
-            }
-            PlayerStatus.DIE -> {
-                player.gameMode = GameMode.SPECTATOR
-                player.teleport(mapLocations.respawn)
+        player.gameMode = GameMode.SPECTATOR
+        player.teleport(mapLocations.respawn)
 
-                if (!finishedPlayerList.contains(player.uniqueId)) {
-                    finishedPlayerList.add(player.uniqueId)
-                    Bukkit.getOnlinePlayers().forEach { it.sendInfoMessage("${player.displayName}님이 탈락하셨습니다.") }
-                }
+        finishedPlayerList.add(player.uniqueId)
+        Bukkit.getOnlinePlayers().forEach { it.sendInfoMessage("${player.displayName}님이 탈락하셨습니다.") }
 
-                if (gameStopCondition()) {
-                    finishedPlayerList.add(alivePlayers[0].uniqueId)
-                    stopGame(finishedPlayerList.apply { reverse() }.map { Bukkit.getPlayer(it)!! }.toList())
-                }
-            }
+        if (gameStopCondition()) {
+            finishedPlayerList.add(alivePlayers[0].uniqueId)
+            stopGame(finishedPlayerList.apply { reverse() }.map { Bukkit.getPlayer(it)!! }.toList())
         }
     }
 
@@ -106,9 +92,6 @@ class BombSpinning : DimGame<BombSpinningItems, BombSpinningSchedulers>() {
         victim.setBombMan()
     }
 
-    private val bossBar =
-        Bukkit.createBossBar(NamespacedKey(plugin, "ScoreOfPush"), "B O O M", BarColor.RED, BarStyle.SOLID)
-
     fun setRandomBombMan() {
         alivePlayers.random().setBombMan()
     }
@@ -124,23 +107,9 @@ class BombSpinning : DimGame<BombSpinningItems, BombSpinningSchedulers>() {
     private fun Player.setBombMan() {
         world.playSound(location, Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1f)
         inventory.helmet = ItemStack(Material.TNT)
-        (0 until 36).forEach { inventory.setItem(it, ItemStack(Material.TNT)) }
-        PotionEffect(
-            PotionEffectType.SLOW,
-            20,
-            2,
-            true,
-            false,
-            true
-        ).also { addPotionEffect(it) }
-        PotionEffect(
-            PotionEffectType.BLINDNESS,
-            40,
-            1,
-            true,
-            false,
-            true
-        ).also { addPotionEffect(it) }
+        inventory.contents = arrayOfNulls<ItemStack>(36).apply { fill(ItemStack(Material.TNT)) }
+        addPotionEffect(PotionsEffects.SLOW_20_2)
+        addPotionEffect(PotionsEffects.BLINDNESS_40_1)
     }
 
     private fun Player.releaseBombMan() {

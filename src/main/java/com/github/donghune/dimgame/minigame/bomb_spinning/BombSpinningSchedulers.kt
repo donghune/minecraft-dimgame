@@ -1,7 +1,8 @@
 package com.github.donghune.dimgame.minigame.bomb_spinning
 
 import com.github.donghune.dimgame.minigame.DimGameScheduler
-import com.github.donghune.dimgame.manager.PlayerStatus
+import com.github.donghune.dimgame.manager.PlayerMiniGameStatus
+import com.github.donghune.dimgame.repository.ingame.miniGameStatus
 import com.github.donghune.namulibrary.schedular.SchedulerManager
 import org.bukkit.GameMode
 import org.bukkit.Particle
@@ -12,7 +13,7 @@ import org.bukkit.potion.PotionEffectType
 import kotlin.random.Random
 
 class BombSpinningSchedulers(
-    dimGame: BombSpinning
+    dimGame: BombSpinning,
 ) : DimGameScheduler<BombSpinningSchedulers.Code>(dimGame) {
 
     private val bombPotionEffect = PotionEffect(PotionEffectType.SPEED, Int.MAX_VALUE, 1, true, false, true)
@@ -46,13 +47,8 @@ class BombSpinningSchedulers(
                         .firstOrNull { bombMan.gameMode != GameMode.SPECTATOR }
 
                     // 봄버맨 사망
-                    dimGame.playerGameStatusManager.setStatus(bombMan.uniqueId, PlayerStatus.DIE)
-                    target?.let { nearPlayer ->
-                        dimGame.playerGameStatusManager.setStatus(
-                            nearPlayer.uniqueId,
-                            PlayerStatus.DIE
-                        )
-                    }
+                    bombMan.miniGameStatus = PlayerMiniGameStatus.DIE
+                    target?.miniGameStatus = PlayerMiniGameStatus.DIE
                 }
 
                 // 살아남은 플레이어가 2명 이상 일 경우 게임 지속

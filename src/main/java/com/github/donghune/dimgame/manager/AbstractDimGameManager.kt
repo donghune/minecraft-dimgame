@@ -1,13 +1,9 @@
 package com.github.donghune.dimgame.manager
 
-import com.github.donghune.dimgame.repository.participant.AbstractParticipantRepository
-import com.github.donghune.dimgame.repository.score.AbstractPlayerScoreRepository
-import com.github.donghune.dimgame.minigame.DimGame
+import com.github.donghune.dimgame.minigame.MiniGame
 import com.github.donghune.dimgame.plugin
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.boss.BarColor
-import org.bukkit.boss.BarStyle
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageEvent
@@ -34,14 +30,12 @@ abstract class AbstractDimGameManager : Listener {
     }
 
     abstract val lobbyLocation: Location
-    abstract val scoreRepository: AbstractPlayerScoreRepository
-    abstract val participantRepository: AbstractParticipantRepository
 
     abstract var gameState: GameStatus
     abstract var roundGameState: RoundGameStatus
     abstract var round: Int
-    lateinit var dimGameList: List<DimGame<*, *>>
-    lateinit var currentDimGame: DimGame<*, *>
+    lateinit var dimGameList: List<MiniGame<*, *>>
+    lateinit var currentDimGame: MiniGame<*, *>
 
     abstract fun onEnabled()
 

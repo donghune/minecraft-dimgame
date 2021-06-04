@@ -18,9 +18,6 @@ class DimGameManager : AbstractDimGameManager() {
 
     override val lobbyLocation: Location = Location(Bukkit.getWorld("world"), 241.0, 86.0, 263.0)
 
-    override val scoreRepository: AbstractPlayerScoreRepository = PlayerScoreRepository()
-    override val participantRepository: AbstractParticipantRepository = ParticipantStatusRepository()
-
     override var gameState: GameStatus = GameStatus.NOT_PLAYING
     override var roundGameState: RoundGameStatus = RoundGameStatus.WAITING
     override var round: Int = 0
@@ -72,7 +69,7 @@ class DimGameManager : AbstractDimGameManager() {
         gameState = GameStatus.PLAYING
         dimGameList = getNewGameList().shuffled()
         roundGameState = RoundGameStatus.WAITING
-        scoreRepository.clearAllPlayerScore()
+        PlayerScoreRepository.clearAllPlayerScore()
         Bukkit.getOnlinePlayers().forEach { player -> player.teleport(lobbyLocation) }
         startRound(10)
     }
@@ -86,8 +83,8 @@ class DimGameManager : AbstractDimGameManager() {
             lobbyBossBarScheduler.runTick(10, Int.MAX_VALUE)
             gameState = GameStatus.NOT_PLAYING
             Bukkit.setWhitelist(false)
-            scoreRepository.showMVPPlayer()
-            scoreRepository.clearAllPlayerScore()
+            PlayerScoreRepository.showMVPPlayer()
+            PlayerScoreRepository.clearAllPlayerScore()
             ParticleResources.executeMVPParticle(lobbyLocation)
             DimGameScoreBoard.clearPlayerScoreBoard()
         }, 20L)
@@ -112,8 +109,8 @@ class DimGameManager : AbstractDimGameManager() {
                 roundGameState = RoundGameStatus.RUNNING
 
                 currentDimGame.startGame(
-                    participantRepository.getParticipantList(),
-                    participantRepository.getObserverList()
+                    ParticipantStatusRepository.getParticipantList(),
+                    ParticipantStatusRepository.getObserverList()
                 ) { rankPlayerList ->
                     roundGameState = RoundGameStatus.WAITING
 
@@ -121,13 +118,13 @@ class DimGameManager : AbstractDimGameManager() {
                         if (index >= 3) {
                             return@forEachIndexed
                         }
-                        scoreRepository.modifyPlayerScore(player.uniqueId, 3 - index)
+                        PlayerScoreRepository.modifyPlayerScore(player.uniqueId, 3 - index)
                     }
 
                     Bukkit.getOnlinePlayers().forEach {
                         it.level = 0
                         it.exp = 0f
-                        DimGameScoreBoard.updatePlayerScoreBoard(it, scoreRepository)
+                        DimGameScoreBoard.updatePlayerScoreBoard(it, PlayerScoreRepository)
                     }
                     round++
                     startRound(5)

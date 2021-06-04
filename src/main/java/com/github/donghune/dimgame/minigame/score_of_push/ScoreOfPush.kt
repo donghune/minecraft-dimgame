@@ -1,9 +1,11 @@
 package com.github.donghune.dimgame.minigame.score_of_push
 
 
-import com.github.donghune.dimgame.manager.PlayerStatus
+import com.github.donghune.dimgame.events.PlayerMiniGameDieEvent
+import com.github.donghune.dimgame.manager.PlayerMiniGameStatus
 import com.github.donghune.dimgame.minigame.*
 import com.github.donghune.dimgame.plugin
+import com.github.donghune.dimgame.repository.ingame.miniGameStatus
 
 
 import org.bukkit.Bukkit
@@ -13,51 +15,40 @@ import org.bukkit.NamespacedKey
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.util.BoundingBox
 import java.util.*
 import kotlin.random.Random
 
-class ScoreOfPush : DimGame<ScoreOfPushItem, ScoreOfPushScheduler>() {
-    override val name: String = ChatColor.DARK_AQUA.toString() + "점수 얻기 ( 밀치기 )"
-    override val description: String = "빨간색 원 위에서 점수를 최대한 많이 얻으세요"
-    override val mapLocations: DimGameMap = DimGameMap(
-        Location(Bukkit.getWorld("world"), 273.0, 99.0, 20.0),
-        Location(Bukkit.getWorld("world"), 346.0, 60.0, -63.0),
+class ScoreOfPush : MiniGame<ScoreOfPushItem, ScoreOfPushScheduler>(
+    name = ChatColor.DARK_AQUA.toString() + "점수 얻기 ( 밀치기 )",
+    description = "빨간색 원 위에서 점수를 최대한 많이 얻으세요",
+    mapLocations = DimGameMap(
+        BoundingBox(273.0, 99.0, 20.0, 346.0, 60.0, -63.0),
         Location(Bukkit.getWorld("world"), 311.5, 86.5, -21.5),
-    )
-    override val gameOption: DimGameOption = DimGameOption(
+    ),
+    gameOption = DimGameOption(
         isBlockPlace = false,
         isBlockBreak = false,
         isCraft = false,
-        isAttack = true
+        isAttack = true,
+        isChat = true
     )
+) {
 
     override val gameItems: ScoreOfPushItem = ScoreOfPushItem()
     override val gameSchedulers: ScoreOfPushScheduler = ScoreOfPushScheduler(this)
-    override val defaultItems: List<ItemStack> = listOf(
-        gameItems.getItemById(ScoreOfPushItem.Code.STICK)
-    )
+    override val bossBar = Bukkit.createBossBar("남은시간 %02d:%02d", BarColor.BLUE, BarStyle.SOLID)
 
     internal val uuidByScore = mutableMapOf<UUID, Int>()
-    internal val bossBar = Bukkit.createBossBar(
-        NamespacedKey(plugin, "ScoreOfPush"),
-        "남은시간 %02d:%02d",
-        BarColor.BLUE,
-        BarStyle.SOLID
-    )
     internal val playTime = 60 * 1 - 1
 
     override fun onStart() {
-        mapLocations.respawn.clone().apply {
-            x += Random.nextInt(-6, 6)
-            z += Random.nextInt(-6, 6)
-        }.also {
-            participationPlayerList.forEach {
-                it.teleport(it)
-            }
+        Bukkit.getOnlinePlayers().forEach {
+            it.inventory.addItem(gameItems.getItemById(ScoreOfPushItem.Code.STICK))
         }
-
         gameSchedulers.getScheduler(ScoreOfPushScheduler.Code.SCORE).runTick(1, Int.MAX_VALUE)
         gameSchedulers.getScheduler(ScoreOfPushScheduler.Code.MAIN).runSecond(1, playTime)
     }
@@ -66,16 +57,11 @@ class ScoreOfPush : DimGame<ScoreOfPushItem, ScoreOfPushScheduler>() {
         PlayerInteractEvent.getHandlerList().unregister(this)
     }
 
-    override fun onChangedPlayerState(player: Player, playerState: PlayerStatus) {
-        when (playerState) {
-            PlayerStatus.ALIVE -> {
-
-            }
-            PlayerStatus.DIE -> {
-                player.teleport(mapLocations.respawn)
-                playerGameStatusManager.setStatus(player.uniqueId, PlayerStatus.ALIVE)
-            }
-        }
+    @EventHandler
+    fun onPlayerMiniGameDieEvent(event: PlayerMiniGameDieEvent) {
+        val player = event.player
+        player.teleport(mapLocations.respawn)
+        player.miniGameStatus = PlayerMiniGameStatus.ALIVE
     }
 
     override fun gameStopCondition(): Boolean {

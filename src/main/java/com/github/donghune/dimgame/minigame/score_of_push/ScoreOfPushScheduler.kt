@@ -44,7 +44,6 @@ class ScoreOfPushScheduler(dimGame: ScoreOfPush) : DimGameScheduler<ScoreOfPushS
                 }
             }
             finished {
-                dimGame.bossBar.players.forEach { dimGame.bossBar.removePlayer(it) }
                 dimGame.uuidByScore.toList()
                     .sortedByDescending { it.second }
                     .mapNotNull { Bukkit.getPlayer(it.first) }
