@@ -1,6 +1,6 @@
-name: DimGame
-version: @version@
-main: com.namu.dimgame.DimGamePlugin
+name: $pluginName
+version: $version
+main: $pluginMain
 api-version: 1.16
 
 commands:
