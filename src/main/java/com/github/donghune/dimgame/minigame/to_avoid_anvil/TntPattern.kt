@@ -1,4 +1,4 @@
-package com.github.donghune.dimgame
+package com.github.donghune.dimgame.minigame.to_avoid_anvil
 
 import org.bukkit.Location
 import org.bukkit.Material
@@ -6,7 +6,7 @@ import org.bukkit.block.data.type.TNT
 import org.bukkit.util.Vector
 
 
-enum class AnvilTNTPattern(private val vectors: List<Vector>) {
+enum class TntPattern(private val vectors: List<Vector>) {
 
     TNT_DOT(
         listOf(

@@ -56,7 +56,7 @@ class ToAvoidAnvilScheduler(dimGame: ToAvoidAnvil) : DimGameScheduler<ToAvoidAnv
 
         SchedulerManager {
             doing {
-                com.github.donghune.dimgame.AnvilTNTPattern.values().random()
+                TntPattern.values().random()
                     .also { println("selected pattern ${toString()}") }
                     .run {
                         dimGame.mapLocations.area
