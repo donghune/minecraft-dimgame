@@ -1,11 +1,11 @@
 package com.github.donghune.dimgame.minigame.score_of_push
 
-import com.github.donghune.dimgame.minigame.DimGameItem
+import com.github.donghune.dimgame.minigame.MiniGameItem
 import com.github.donghune.namulibrary.extension.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 
-class ScoreOfPushItem : DimGameItem<ScoreOfPushItem.Code>() {
+class ScoreOfPushItem : MiniGameItem<ScoreOfPushItem.Code>() {
 
     init {
         ItemBuilder().setMaterial(Material.STICK)

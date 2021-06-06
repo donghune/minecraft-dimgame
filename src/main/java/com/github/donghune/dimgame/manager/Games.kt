@@ -14,7 +14,7 @@ fun getNewGameList(): List<MiniGame<*, *>> {
     return listOf(
         BattleOfPush(),
         BombSpinning(),
-        FastCombination(),
+//        FastCombination(),
         JumpMap(),
         OXQuiz(),
         ScoreOfPush(),

@@ -1,12 +1,12 @@
 package com.github.donghune.dimgame.minigame.to_avoid_anvil
 
-import com.github.donghune.dimgame.minigame.DimGameItem
+import com.github.donghune.dimgame.minigame.MiniGameItem
 import com.github.donghune.namulibrary.extension.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
-class ToAvoidAnvilItem : DimGameItem<ToAvoidAnvilItem.Code>() {
+class ToAvoidAnvilItem : MiniGameItem<ToAvoidAnvilItem.Code>() {
     init {
         ItemBuilder().setMaterial(Material.COAL)
             .setDisplay("점프")

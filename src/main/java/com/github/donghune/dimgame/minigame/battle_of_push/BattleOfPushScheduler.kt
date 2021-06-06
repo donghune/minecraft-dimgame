@@ -1,11 +1,11 @@
 package com.github.donghune.dimgame.minigame.battle_of_push
 
-import com.github.donghune.dimgame.minigame.DimGameScheduler
+import com.github.donghune.dimgame.minigame.MiniGameScheduler
 import com.github.donghune.namulibrary.schedular.SchedulerManager
 
 class BattleOfPushScheduler(
     dimGame: BattleOfPush
-) : DimGameScheduler<BattleOfPushScheduler.Code>(dimGame) {
+) : MiniGameScheduler<BattleOfPushScheduler.Code>(dimGame) {
 
     init {
         SchedulerManager {

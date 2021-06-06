@@ -1,7 +1,7 @@
 package com.github.donghune.dimgame.minigame.fast_combination
 
-import com.github.donghune.dimgame.minigame.DimGameItem
+import com.github.donghune.dimgame.minigame.MiniGameItem
 
-class FastCombinationItem : DimGameItem<FastCombinationItem.Code>() {
+class FastCombinationItem : MiniGameItem<FastCombinationItem.Code>() {
     enum class Code
 }

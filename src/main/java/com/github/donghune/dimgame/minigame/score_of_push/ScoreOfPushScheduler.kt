@@ -1,13 +1,16 @@
 package com.github.donghune.dimgame.minigame.score_of_push
 
-import com.github.donghune.dimgame.minigame.DimGameScheduler
+import com.github.donghune.dimgame.minigame.MiniGameScheduler
+import com.github.donghune.dimgame.plugin
+import com.github.donghune.dimgame.util.broadcastOnTitle
 import com.github.donghune.namulibrary.schedular.SchedulerManager
+import com.github.shynixn.mccoroutine.launch
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Sound
 import java.util.*
 
-class ScoreOfPushScheduler(dimGame: ScoreOfPush) : DimGameScheduler<ScoreOfPushScheduler.Code>(dimGame) {
+class ScoreOfPushScheduler(dimGame: ScoreOfPush) : MiniGameScheduler<ScoreOfPushScheduler.Code>(dimGame) {
 
     init {
         SchedulerManager {
@@ -33,14 +36,13 @@ class ScoreOfPushScheduler(dimGame: ScoreOfPush) : DimGameScheduler<ScoreOfPushS
                         }
                     }
 
-                    Bukkit.getOnlinePlayers().forEach { player ->
-                        player.sendTitle(
-                            ChatColor.YELLOW.toString() + ChatColor.BOLD.toString() + Bukkit.getPlayer(
-                                stPlayer
-                            )!!.displayName,
-                            ChatColor.GRAY.toString() + ChatColor.BOLD.toString() + "현재 1등 플레이어", 10, 40, 10
-                        )
-                    }
+                    broadcastOnTitle(
+                        "&e&l${Bukkit.getPlayer(stPlayer)!!.name}",
+                        "&7&l현재 1등 플레이어",
+                        10,
+                        40,
+                        10
+                    )
                 }
             }
             finished {
@@ -48,7 +50,11 @@ class ScoreOfPushScheduler(dimGame: ScoreOfPush) : DimGameScheduler<ScoreOfPushS
                     .sortedByDescending { it.second }
                     .mapNotNull { Bukkit.getPlayer(it.first) }
                     .toList()
-                    .also { dimGame.stopGame(it) }
+                    .also {
+                        plugin.launch {
+                            dimGame.stopGame(it)
+                        }
+                    }
             }
         }.registerScheduler(Code.MAIN)
 

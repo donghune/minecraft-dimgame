@@ -4,7 +4,7 @@ import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.util.BoundingBox
 
-data class DimGameMap(
+data class MiniGameMap(
     val area: BoundingBox,
     val respawn: Location,
 ) {

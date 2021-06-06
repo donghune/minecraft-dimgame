@@ -1,6 +1,6 @@
 package com.github.donghune.dimgame.minigame.bomb_spinning
 
-import com.github.donghune.dimgame.minigame.DimGameScheduler
+import com.github.donghune.dimgame.minigame.MiniGameScheduler
 import com.github.donghune.dimgame.manager.PlayerMiniGameStatus
 import com.github.donghune.dimgame.repository.ingame.miniGameStatus
 import com.github.donghune.namulibrary.schedular.SchedulerManager
@@ -14,7 +14,7 @@ import kotlin.random.Random
 
 class BombSpinningSchedulers(
     dimGame: BombSpinning,
-) : DimGameScheduler<BombSpinningSchedulers.Code>(dimGame) {
+) : MiniGameScheduler<BombSpinningSchedulers.Code>(dimGame) {
 
     private val bombPotionEffect = PotionEffect(PotionEffectType.SPEED, Int.MAX_VALUE, 1, true, false, true)
 

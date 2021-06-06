@@ -15,6 +15,12 @@ fun Player.clearChat() {
     }
 }
 
+fun Player.activePotionEffectsClear() {
+    activePotionEffects.forEach { potionEffect ->
+        removePotionEffect(potionEffect.type)
+    }
+}
+
 fun SchedulerManager.stopSchedulerNotWithFinish() {
     doingBukkitTask.cancel()
     cancelBukkitTask.cancel()

@@ -1,13 +1,13 @@
 package com.github.donghune.dimgame.minigame.spleef
 
-import com.github.donghune.dimgame.minigame.DimGameItem
+import com.github.donghune.dimgame.minigame.MiniGameItem
 import com.github.donghune.namulibrary.extension.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
-class SpleefItem : DimGameItem<SpleefItem.Code>() {
+class SpleefItem : MiniGameItem<SpleefItem.Code>() {
 
     init {
         ItemBuilder().setMaterial(Material.DIAMOND_SHOVEL)

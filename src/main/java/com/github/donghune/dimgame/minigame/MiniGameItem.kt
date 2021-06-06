@@ -12,7 +12,7 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import java.util.*
 
-abstract class DimGameItem<ID> : Listener {
+abstract class MiniGameItem<ID> : Listener {
 
     private val idByAction = mutableMapOf<ID, (PlayerInteractEvent) -> Unit>()
     private val idByIsActionItem = mutableMapOf<ID, Boolean>()

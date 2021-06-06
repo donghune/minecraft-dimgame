@@ -1,13 +1,24 @@
 package com.github.donghune.dimgame.minigame
 
+import com.github.donghune.dimgame.events.MiniGameEndEvent
+import com.github.donghune.dimgame.events.PlayerMiniGameAliveEvent
+import com.github.donghune.dimgame.events.PlayerMiniGameDieEvent
 import com.github.donghune.dimgame.manager.PlayerMiniGameStatus
 import com.github.donghune.dimgame.manager.RoundGameStatus
 import com.github.donghune.dimgame.plugin
 import com.github.donghune.dimgame.repository.ingame.PlayerMiniGameStatusRepository
 import com.github.donghune.dimgame.repository.ingame.miniGameStatus
 import com.github.donghune.dimgame.repository.other.ParticleResources
+import com.github.donghune.dimgame.util.broadcastOnTitle
+import com.github.donghune.dimgame.util.info
+import com.github.donghune.dimgame.util.syncGameMode
+import com.github.donghune.dimgame.util.syncTeleport
 import com.github.donghune.namulibrary.schedular.SchedulerManager
+import com.github.shynixn.mccoroutine.callSuspendingEvent
 import com.github.shynixn.mccoroutine.registerSuspendingEvents
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.boss.BarColor
@@ -19,13 +30,12 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.inventory.ItemStack
 
-abstract class MiniGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>>(
+abstract class MiniGame<ITEM : MiniGameItem<*>, SCHEDULER : MiniGameScheduler<*>>(
     val name: String,
     val description: String,
-    val mapLocations: DimGameMap,
-    val gameOption: DimGameOption,
+    val mapLocations: MiniGameMap,
+    val gameOption: MiniGameOption,
 ) : Listener {
 
     abstract val gameItems: ITEM
@@ -38,22 +48,20 @@ abstract class MiniGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>>(
     internal var participationPlayerList: MutableList<Player> = mutableListOf()
 
     private lateinit var mapScheduler: SchedulerManager
-    private lateinit var onMiniGameStopCallback: (List<Player>) -> Unit
 
     val alivePlayers
         get() = participationPlayerList.filter { it.miniGameStatus == PlayerMiniGameStatus.ALIVE }
 
-    fun skipGame() {
+    suspend fun skipGame() {
         stopGame(participationPlayerList)
     }
 
-    fun startGame(
+    suspend fun startGame(
         participationPlayerList: List<Player>,
         observerPlayerList: List<Player>,
-        onMiniGameStopCallback: (List<Player>) -> Unit = {},
     ) {
+
         // 전역 변수 등록
-        this.onMiniGameStopCallback = onMiniGameStopCallback
         this.participationPlayerList = participationPlayerList.toMutableList()
         this.observerPlayerList = observerPlayerList
 
@@ -61,37 +69,39 @@ abstract class MiniGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>>(
         gameStatus = RoundGameStatus.RUNNING
 
         // 게임 옵션 등록 ( 이벤트 )
-        this.gameOption.register()
-        this.gameItems.register()
+        gameOption.register()
+        gameItems.register()
 
         // 참가자 리스폰으로 텔레포트 및 게임모드, 인벤토리 설정
-        this.participationPlayerList.forEach {
-            it.teleport(mapLocations.respawn)
-            it.gameMode = GameMode.SURVIVAL
+        participationPlayerList.forEach {
+            it.syncTeleport(mapLocations.respawn)
+            it.syncGameMode(GameMode.ADVENTURE)
             it.inventory.clear()
             it.miniGameStatus = PlayerMiniGameStatus.ALIVE
             bossBar.addPlayer(it)
         }
 
         // 옵저버도 동일하게 텔레포트
-        this.observerPlayerList.forEach {
-            it.teleport(mapLocations.respawn)
-            it.gameMode = GameMode.SPECTATOR
+        observerPlayerList.forEach {
+            it.syncTeleport(mapLocations.respawn)
+            it.syncGameMode(GameMode.SPECTATOR)
         }
 
         // 맵 스케쥴러 작동
-        mapScheduler = mapScheduler(this).also {
+        mapScheduler = mapScheduler(this@MiniGame).also {
             it.runTick(1, Int.MAX_VALUE)
         }
 
-        onStart()
+        Bukkit.getPluginManager().registerSuspendingEvents(this@MiniGame, plugin)
 
-        Bukkit.getPluginManager().registerSuspendingEvents(this, plugin)
+        onStart()
     }
 
-    fun stopGame(rank: List<Player>) {
+    suspend fun stopGame(rank: List<Player>) {
         PlayerInteractEvent.getHandlerList().unregister(this)
         EntityDamageEvent.getHandlerList().unregister(this)
+        PlayerMiniGameDieEvent.getHandlerList().unregister(this)
+        PlayerMiniGameAliveEvent.getHandlerList().unregister(this)
 
         gameStatus = RoundGameStatus.WAITING
 
@@ -106,30 +116,29 @@ abstract class MiniGame<ITEM : DimGameItem<*>, SCHEDULER : DimGameScheduler<*>>(
         bossBar.removeAll()
 
         Bukkit.getOnlinePlayers().forEach {
-            it.gameMode = GameMode.SPECTATOR
+            it.syncGameMode(GameMode.SPECTATOR)
             it.inventory.clear()
         }
 
-        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
-            ParticleResources.executeMVPParticle(mapLocations.respawn)
-            Bukkit.getOnlinePlayers().forEach {
-                Bukkit.getOnlinePlayers().forEach {
-                    it.sendTitle("1st", rank[0].name, 10, 60, 10)
-                }
-                rank.forEachIndexed { index, player ->
-                    it.sendMessage("[DimGame] $index. ${player.name}")
-                }
-            }
-            Bukkit.getScheduler().runTaskLater(plugin, Runnable {
-                onStop(rank)
-                onMiniGameStopCallback.invoke(rank)
-            }, 60L)
-        }, 20L)
+        ParticleResources.executeMVPParticle(mapLocations.respawn)
+
+        delay(1000L)
+
+        broadcastOnTitle("1st", rank[0].name, 10, 60, 10)
+        rank.forEachIndexed { index, player ->
+            Bukkit.broadcast(Component.text(info("[DimGame] ${index + 1}. ${player.name}")))
+        }
+
+        delay(3000L)
+
+        onStop(rank)
+        Bukkit.getPluginManager().callSuspendingEvent(MiniGameEndEvent(rank.map { it.uniqueId }), plugin)
+
     }
 
-    abstract fun onStart()
-    abstract fun onStop(rank: List<Player>)
-    abstract fun gameStopCondition(): Boolean
+    abstract suspend fun onStart()
+    abstract suspend fun onStop(rank: List<Player>)
+    abstract suspend fun gameStopCondition(): Boolean
 
     @EventHandler
     fun onEntityDamageEvent(event: EntityDamageEvent) {

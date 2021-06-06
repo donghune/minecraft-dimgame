@@ -1,21 +1,21 @@
 package com.github.donghune.dimgame.minigame.battle_of_push
 
-import com.github.donghune.dimgame.minigame.DimGameItem
+import com.github.donghune.dimgame.minigame.MiniGameItem
 import com.github.donghune.namulibrary.extension.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
-class BattleOfPushItem : DimGameItem<BattleOfPushItem.Code>() {
+class BattleOfPushItem : MiniGameItem<BattleOfPushItem.Code>() {
 
     init {
-        ItemBuilder().setMaterial(Material.FEATHER)
-            .setDisplay("날개")
+        ItemBuilder().setMaterial(Material.POTION)
+            .setDisplay("투명인간")
             .setLore(listOf("공중부양을 5초간 부여합니다."))
             .build()
-            .registerAction(Code.FEATHER, true) {
-                val potionEffect = PotionEffect(PotionEffectType.LEVITATION, 20 * 5, 1, true, false)
+            .registerAction(Code.INVISIBLE, true) {
+                val potionEffect = PotionEffect(PotionEffectType.INVISIBILITY, 20 * 3, 1, true, false)
                 it.player.addPotionEffect(potionEffect)
             }
 
@@ -39,7 +39,7 @@ class BattleOfPushItem : DimGameItem<BattleOfPushItem.Code>() {
     }
 
     enum class Code {
-        FEATHER, SPEED, STICK
+        INVISIBLE, SPEED, STICK
     }
 
 }

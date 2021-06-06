@@ -1,12 +1,12 @@
 package com.github.donghune.dimgame.minigame.jump_map
 
-import com.github.donghune.dimgame.minigame.DimGameItem
+import com.github.donghune.dimgame.minigame.MiniGameItem
 import com.github.donghune.namulibrary.extension.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
-class JumpMapItem : DimGameItem<JumpMapItem.Code>() {
+class JumpMapItem : MiniGameItem<JumpMapItem.Code>() {
 
     init {
         ItemBuilder().setMaterial(Material.FEATHER)

@@ -1,8 +1,8 @@
 package com.github.donghune.dimgame.minigame.spleef
 
-import com.github.donghune.dimgame.minigame.DimGameScheduler
+import com.github.donghune.dimgame.minigame.MiniGameScheduler
 
-class SpleefSchedulers(dimGame: Spleef) : DimGameScheduler<SpleefSchedulers.Code>(dimGame) {
+class SpleefSchedulers(dimGame: Spleef) : MiniGameScheduler<SpleefSchedulers.Code>(dimGame) {
 
     enum class Code
 

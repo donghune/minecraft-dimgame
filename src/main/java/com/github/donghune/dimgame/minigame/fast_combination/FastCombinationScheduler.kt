@@ -2,9 +2,9 @@ package com.github.donghune.dimgame.minigame.fast_combination
 
 
 import com.github.donghune.dimgame.minigame.MiniGame
-import com.github.donghune.dimgame.minigame.DimGameScheduler
+import com.github.donghune.dimgame.minigame.MiniGameScheduler
 
-class FastCombinationScheduler(dimGame: MiniGame<*, *>) : DimGameScheduler<FastCombinationScheduler.Code>(dimGame) {
+class FastCombinationScheduler(dimGame: MiniGame<*, *>) : MiniGameScheduler<FastCombinationScheduler.Code>(dimGame) {
 
     enum class Code
 

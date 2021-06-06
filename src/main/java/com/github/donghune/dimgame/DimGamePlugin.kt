@@ -1,47 +1,55 @@
 package com.github.donghune.dimgame
 
-import com.github.donghune.dimgame.manager.DimGameManager
+import com.github.donghune.dimgame.manager.MiniGameManager
+import com.github.donghune.dimgame.util.activePotionEffectsClear
 import com.github.monun.kommand.kommand
 import com.github.donghune.namulibrary.schedular.SchedulerManager
+import com.github.shynixn.mccoroutine.SuspendingJavaPlugin
+import com.github.shynixn.mccoroutine.launch
+import com.github.shynixn.mccoroutine.minecraftDispatcher
+import com.github.shynixn.mccoroutine.scope
 import org.bukkit.*
 import org.bukkit.plugin.java.JavaPlugin
 
 lateinit var plugin: JavaPlugin
 
-class DimGamePlugin : JavaPlugin() {
-    override fun onEnable() {
+class DimGamePlugin : SuspendingJavaPlugin() {
+
+    override suspend fun onEnableAsync() {
         plugin = this
 
         SchedulerManager.initializeSchedulerManager(this)
-        val dimGameManager = DimGameManager()
+        val dimGameManager = MiniGameManager()
         dimGameManager.onEnabled()
 
-        Bukkit.getOnlinePlayers().forEach {
-            it.activePotionEffects.forEach { potionEffect ->
-                it.removePotionEffect(potionEffect.type)
-            }
-        }
+        Bukkit.getOnlinePlayers().forEach { it.activePotionEffectsClear() }
 
         kommand {
             register("dimgame") {
                 then("start") {
                     executes {
-                        dimGameManager.start()
+                        launch(minecraftDispatcher) {
+                            dimGameManager.start()
+                        }
                     }
                 }
                 then("stop") {
                     executes {
-                        dimGameManager.stop()
+                        launch(minecraftDispatcher) {
+                            dimGameManager.stop()
+                        }
                     }
                 }
                 then("skip") {
                     executes {
-                        dimGameManager.skip()
+                        launch(minecraftDispatcher) {
+                            dimGameManager.skip()
+                        }
                     }
-                }
-                then("debug") {
-                    executes {
+                    then("debug") {
+                        executes {
 
+                        }
                     }
                 }
             }

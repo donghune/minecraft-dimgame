@@ -1,9 +1,9 @@
 package com.github.donghune.dimgame.minigame.jump_map
 
-import com.github.donghune.dimgame.minigame.DimGameScheduler
+import com.github.donghune.dimgame.minigame.MiniGameScheduler
 import com.github.donghune.namulibrary.schedular.SchedulerManager
 
-class JumpMapScheduler(dimGame: JumpMap) : DimGameScheduler<JumpMapScheduler.Code>(dimGame) {
+class JumpMapScheduler(dimGame: JumpMap) : MiniGameScheduler<JumpMapScheduler.Code>(dimGame) {
 
     init {
         SchedulerManager {

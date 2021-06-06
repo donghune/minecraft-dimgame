@@ -7,19 +7,18 @@ import com.github.donghune.dimgame.repository.ingame.miniGameStatus
 
 
 import com.github.donghune.dimgame.util.ScoreBoardManager
+import com.github.donghune.dimgame.util.syncTeleport
 import com.github.donghune.namulibrary.schedular.SchedulerManager
+import kotlinx.coroutines.delay
 import org.bukkit.*
-import org.bukkit.boss.BarColor
-import org.bukkit.boss.BarStyle
-import org.bukkit.boss.BossBar
 import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.inventory.ItemStack
 import org.bukkit.util.BoundingBox
 import java.util.*
 import kotlin.Comparator
@@ -27,11 +26,11 @@ import kotlin.Comparator
 class FastCombination : MiniGame<FastCombinationItem, FastCombinationScheduler>(
     name = ChatColor.GOLD.toString() + "빨리 조합하기",
     description = "남들보다 더 많은 아이템을 제작하세요!",
-    mapLocations = DimGameMap(
+    mapLocations = MiniGameMap(
         BoundingBox(336.0, 118.0, 44.0, 421.0, 80.0, 130.0),
         Location(Bukkit.getWorld("world"), 380.0, 99.0, 96.0),
     ),
-    gameOption = DimGameOption(
+    gameOption = MiniGameOption(
         isBlockPlace = false,
         isBlockBreak = true,
         isCraft = true,
@@ -46,9 +45,10 @@ class FastCombination : MiniGame<FastCombinationItem, FastCombinationScheduler>(
     private val productionItems = mutableMapOf<Material, UUID?>()
     private val productionItemsScoreBoard = ScoreBoardManager("craft-list")
 
-    override fun onStart() {
+    override suspend fun onStart() {
         participationPlayerList.forEach {
             productionItemsScoreBoard.visibleScoreboard(it)
+            it.gameMode = GameMode.SURVIVAL
         }
         productionItems.clear()
         Combination.items.shuffled().subList(0, 10).forEach {
@@ -57,7 +57,7 @@ class FastCombination : MiniGame<FastCombinationItem, FastCombinationScheduler>(
         refreshScoreboard()
     }
 
-    override fun onStop(rank: List<Player>) {
+    override suspend fun onStop(rank: List<Player>) {
         BlockBreakEvent.getHandlerList().unregister(this)
         PlayerJoinEvent.getHandlerList().unregister(this)
         EntityDeathEvent.getHandlerList().unregister(this)
@@ -70,7 +70,7 @@ class FastCombination : MiniGame<FastCombinationItem, FastCombinationScheduler>(
     @EventHandler
     fun onPlayerMiniGameDieEvent(event: PlayerMiniGameDieEvent) {
         val player = event.player
-        player.teleport(mapLocations.respawn)
+        player.syncTeleport(mapLocations.respawn)
         player.miniGameStatus = PlayerMiniGameStatus.ALIVE
     }
 
@@ -87,18 +87,14 @@ class FastCombination : MiniGame<FastCombinationItem, FastCombinationScheduler>(
     }
 
     @EventHandler
-    fun onBlockBreakEvent(event: BlockBreakEvent) {
+    suspend fun onBlockBreakEvent(event: BlockBreakEvent) {
         val beforeType = event.block.type
-        SchedulerManager {
-            finished {
-                event.block.type = beforeType
-            }
-        }.runSecond(0L, 1)
+        delay(50)
+        event.block.type = beforeType
     }
 
     @EventHandler
     fun onEntityDeathEvent(event: EntityDeathEvent) {
-
         val entity = event.entity
 
         if (entity is Player) {
@@ -109,7 +105,7 @@ class FastCombination : MiniGame<FastCombinationItem, FastCombinationScheduler>(
     }
 
     @EventHandler
-    fun onCraftItemEvent(event: CraftItemEvent) {
+    suspend fun onCraftItemEvent(event: CraftItemEvent) {
         val currentItem = event.currentItem ?: return
 
         if (productionItems.contains(currentItem.type).not()) {
@@ -136,6 +132,7 @@ class FastCombination : MiniGame<FastCombinationItem, FastCombinationScheduler>(
             1f,
             1f
         )
+
         participationPlayerList.forEach { player ->
             player.sendMessage("누군가 아이템을 완성 하였습니다.")
         }
@@ -166,7 +163,7 @@ class FastCombination : MiniGame<FastCombinationItem, FastCombinationScheduler>(
         stopGame(resultMap)
     }
 
-    override fun gameStopCondition(): Boolean {
+    override suspend fun gameStopCondition(): Boolean {
         return productionItems.values.count { it == null } == 0
     }
 

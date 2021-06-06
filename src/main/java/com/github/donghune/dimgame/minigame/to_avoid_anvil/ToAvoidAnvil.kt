@@ -2,24 +2,18 @@ package com.github.donghune.dimgame.minigame.to_avoid_anvil
 
 
 import com.github.donghune.dimgame.events.PlayerMiniGameDieEvent
-import com.github.donghune.dimgame.events.PlayerStatusChangeEvent
 import com.github.donghune.dimgame.manager.PlayerMiniGameStatus
 import com.github.donghune.dimgame.minigame.*
 import com.github.donghune.dimgame.plugin
 import com.github.donghune.dimgame.repository.ingame.miniGameStatus
 import com.github.donghune.dimgame.util.*
 import com.github.donghune.namulibrary.extension.addY
-import com.github.donghune.namulibrary.extension.sendInfoMessage
-import com.github.donghune.namulibrary.schedular.SchedulerManager
 import com.github.shynixn.mccoroutine.launch
 import com.github.shynixn.mccoroutine.minecraftDispatcher
 import kotlinx.coroutines.delay
 import net.kyori.adventure.text.Component
 import org.bukkit.*
 import org.bukkit.block.Block
-import org.bukkit.boss.BarColor
-import org.bukkit.boss.BarStyle
-import org.bukkit.boss.BossBar
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.FallingBlock
@@ -28,21 +22,18 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.ExplosionPrimeEvent
-import org.bukkit.inventory.ItemStack
 import org.bukkit.util.BoundingBox
 import org.bukkit.util.Vector
 import java.util.*
-import kotlin.random.Random
-import kotlin.random.nextInt
 
 class ToAvoidAnvil : MiniGame<ToAvoidAnvilItem, ToAvoidAnvilScheduler>(
     name = ChatColor.DARK_GREEN.toString() + "모루피하기",
     description = "떨어지는 모루를 피하세요",
-    mapLocations = DimGameMap(
+    mapLocations = MiniGameMap(
         BoundingBox(131.0, 103.0, 144.0, 105.0, 83.0, 170.0),
         Location(Bukkit.getWorld("world"), 118.0, 84.0, 157.0),
     ),
-    gameOption = DimGameOption(
+    gameOption = MiniGameOption(
         isBlockPlace = false,
         isBlockBreak = false,
         isCraft = false,
@@ -54,35 +45,34 @@ class ToAvoidAnvil : MiniGame<ToAvoidAnvilItem, ToAvoidAnvilScheduler>(
     override val gameItems: ToAvoidAnvilItem = ToAvoidAnvilItem()
     override val gameSchedulers: ToAvoidAnvilScheduler = ToAvoidAnvilScheduler(this)
 
-    override fun onStart() {
-        plugin.launch(plugin.minecraftDispatcher) {
-            gameSchedulers.getScheduler(ToAvoidAnvilScheduler.Code.MAIN).runSecond(1L, Int.MAX_VALUE)
-            delay(6000L)
-            gameSchedulers.getScheduler(ToAvoidAnvilScheduler.Code.PATTERN).runSecond(10L, Int.MAX_VALUE)
-        }
+    override suspend fun onStart() {
+        clearMap()
+        delay(2000L)
+        gameSchedulers.getScheduler(ToAvoidAnvilScheduler.Code.MAIN).runSecond(1L, Int.MAX_VALUE)
+        delay(6000L)
+        gameSchedulers.getScheduler(ToAvoidAnvilScheduler.Code.PATTERN).runSecond(10L, Int.MAX_VALUE)
     }
 
-    override fun onStop(rank: List<Player>) {
+    override suspend fun onStop(rank: List<Player>) {
         EntityDamageByBlockEvent.getHandlerList().unregister(this)
         EntityChangeBlockEvent.getHandlerList().unregister(this)
         tntEntityList.forEach { it.remove() }
         ExplosionPrimeEvent.getHandlerList().unregister(this)
         gameSchedulers.getScheduler(ToAvoidAnvilScheduler.Code.MAIN).stopScheduler()
         gameSchedulers.getScheduler(ToAvoidAnvilScheduler.Code.PATTERN).stopScheduler()
-        clearMap()
     }
 
     private val finishedPlayerList = mutableListOf<UUID>()
     private val tntEntityList = mutableListOf<Entity>()
 
     @EventHandler
-    fun onPlayerMiniGameDieEvent(event: PlayerMiniGameDieEvent) {
+    suspend fun onPlayerMiniGameDieEvent(event: PlayerMiniGameDieEvent) {
         val player = event.player
 
-        player.gameMode = GameMode.SPECTATOR
-        player.teleport(mapLocations.respawn)
+        player.syncGameMode(GameMode.SPECTATOR)
+        player.syncTeleport(mapLocations.respawn)
 
-        Bukkit.broadcast(Component.text("${player.name}님이 탈락하셨습니다."))
+        Bukkit.broadcast(Component.text(info("${player.name}님이 탈락하셨습니다.")))
         finishedPlayerList.add(player.uniqueId)
 
         if (alivePlayers.size == 1) {
@@ -142,7 +132,7 @@ class ToAvoidAnvil : MiniGame<ToAvoidAnvilItem, ToAvoidAnvilScheduler>(
         }
     }
 
-    override fun gameStopCondition(): Boolean {
+    override suspend fun gameStopCondition(): Boolean {
         return true
     }
 

@@ -1,8 +1,10 @@
 package com.github.donghune.dimgame.minigame.ox_quiz
 
-import com.github.donghune.dimgame.minigame.DimGameScheduler
+import com.github.donghune.dimgame.minigame.MiniGameScheduler
+import com.github.donghune.dimgame.plugin
 import com.github.donghune.dimgame.util.contains2D
 import com.github.donghune.namulibrary.schedular.SchedulerManager
+import com.github.shynixn.mccoroutine.launch
 import org.bukkit.*
 import org.bukkit.entity.Firework
 import org.bukkit.potion.PotionEffect
@@ -10,7 +12,7 @@ import org.bukkit.potion.PotionEffectType
 import java.util.*
 import kotlin.Comparator
 
-class OXQuizScheduler(dimGame: OXQuiz) : DimGameScheduler<OXQuizScheduler.Code>(dimGame) {
+class OXQuizScheduler(dimGame: OXQuiz) : MiniGameScheduler<OXQuizScheduler.Code>(dimGame) {
 
     init {
         SchedulerManager {
@@ -95,22 +97,18 @@ class OXQuizScheduler(dimGame: OXQuiz) : DimGameScheduler<OXQuizScheduler.Code>(
             }
             finished {
                 dimGame.participationPlayerList
-                    .map { it.uniqueId to 0 }
-                    .onEach { println(".map { it.uniqueId to 0 } $it") }
-                    .toMap().toMutableMap()
-                    .onEach { println(".toMap().toMutableMap() $it") }
+                    .associate { it.uniqueId to 0 }.toMutableMap()
                     .also { dimGame.uuidByScore.forEach { (uuid, score) -> it[uuid] = score } }
-                    .onEach { println(".also { dimGame.uuidByScore.forEach { (uuid, score) -> it[uuid] = score } } $it") }
                     .toSortedMap(Comparator { o1: UUID, o2: UUID ->
                         return@Comparator (dimGame.uuidByScore[o2] ?: 0) - (dimGame.uuidByScore[o1] ?: 0)
                     }).keys
-                    .onEach { println(".toSortedMap(Comparator { o1: UUID, o2: UUID -> return@Comparator (dimGame.uuidByScore[o2] ?: 0) - (dimGame.uuidByScore[o1] ?: 0) }).keys $it") }
                     .mapNotNull { Bukkit.getPlayer(it) }
-                    .onEach { println(".mapNotNull { Bukkit.getPlayer(it) } $it") }
                     .toList()
-                    .onEach { println(".toList() $it") }
-                    .also { dimGame.stopGame(it) }
-                    .onEach { println(".also { dimGame.stopGame(it) } $it") }
+                    .also {
+                        plugin.launch {
+                            dimGame.stopGame(it)
+                        }
+                    }
             }
         }.registerScheduler(Code.MAIN)
     }

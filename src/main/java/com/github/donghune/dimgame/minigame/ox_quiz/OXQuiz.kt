@@ -1,8 +1,9 @@
 package com.github.donghune.dimgame.minigame.ox_quiz
 
-import com.github.donghune.dimgame.minigame.DimGameMap
-import com.github.donghune.dimgame.minigame.DimGameOption
+import com.github.donghune.dimgame.minigame.MiniGameMap
+import com.github.donghune.dimgame.minigame.MiniGameOption
 import com.github.donghune.dimgame.minigame.MiniGame
+import kotlinx.coroutines.delay
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Location
@@ -13,11 +14,11 @@ import java.util.*
 class OXQuiz : MiniGame<OXQuizItem, OXQuizScheduler>(
     name = ChatColor.YELLOW.toString() + "OX 퀴즈",
     description = "남들보다 많은 문제를 맞추세요!",
-    mapLocations = DimGameMap(
+    mapLocations = MiniGameMap(
         BoundingBox(348.0, 95.0, 269.0, 399.0, 79.0, 299.0),
         Location(Bukkit.getWorld("world"), 373.0, 85.0, 284.0),
     ),
-    gameOption = DimGameOption(
+    gameOption = MiniGameOption(
         isBlockPlace = false,
         isBlockBreak = false,
         isCraft = false,
@@ -40,14 +41,15 @@ class OXQuiz : MiniGame<OXQuizItem, OXQuizScheduler>(
 
     internal val uuidByScore = mutableMapOf<UUID, Int>()
 
-    override fun onStart() {
+    override suspend fun onStart() {
+        delay(3000L)
         gameSchedulers.getScheduler(OXQuizScheduler.Code.MAIN).runSecond(15, 5)
     }
 
-    override fun onStop(rank: List<Player>) {
+    override suspend fun onStop(rank: List<Player>) {
     }
 
-    override fun gameStopCondition(): Boolean {
+    override suspend fun gameStopCondition(): Boolean {
         return false
     }
 

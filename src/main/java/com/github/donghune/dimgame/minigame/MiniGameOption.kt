@@ -1,6 +1,7 @@
 package com.github.donghune.dimgame.minigame
 
 import com.github.donghune.dimgame.plugin
+import com.github.shynixn.mccoroutine.registerSuspendingEvents
 import io.papermc.paper.event.player.AsyncChatEvent
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -11,7 +12,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.inventory.CraftItemEvent
 
-data class DimGameOption(
+data class MiniGameOption(
     val isBlockPlace: Boolean,
     val isBlockBreak: Boolean,
     val isCraft: Boolean,
@@ -20,7 +21,7 @@ data class DimGameOption(
 ) : Listener {
 
     fun register() {
-        Bukkit.getPluginManager().registerEvents(this, plugin)
+        Bukkit.getPluginManager().registerSuspendingEvents(this, plugin)
     }
 
     fun unregister() {

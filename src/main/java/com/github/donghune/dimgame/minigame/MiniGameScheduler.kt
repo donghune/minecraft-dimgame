@@ -3,7 +3,7 @@ package com.github.donghune.dimgame.minigame
 import com.github.donghune.dimgame.util.stopSchedulerNotWithFinish
 import com.github.donghune.namulibrary.schedular.SchedulerManager
 
-abstract class DimGameScheduler<ID>(
+abstract class MiniGameScheduler<ID>(
         protected val dimGame: MiniGame<*, *>
 ) {
 

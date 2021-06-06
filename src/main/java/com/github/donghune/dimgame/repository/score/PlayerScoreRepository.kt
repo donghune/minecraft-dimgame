@@ -1,5 +1,6 @@
 package com.github.donghune.dimgame.repository.score
 
+import com.github.donghune.dimgame.util.broadcastOnTitle
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.*
@@ -44,9 +45,7 @@ object PlayerScoreRepository : AbstractPlayerScoreRepository() {
     }
 
     override fun showMVPPlayer() {
-        Bukkit.getOnlinePlayers().forEach {
-            it.sendTitle("MVP", getMVPPlayer().displayName, 10, 60, 10)
-        }
+        broadcastOnTitle("&eMVP", getMVPPlayer().name, 10, 60, 10)
     }
 
 }

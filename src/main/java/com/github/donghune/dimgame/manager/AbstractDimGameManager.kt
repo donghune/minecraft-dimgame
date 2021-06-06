@@ -2,6 +2,7 @@ package com.github.donghune.dimgame.manager
 
 import com.github.donghune.dimgame.minigame.MiniGame
 import com.github.donghune.dimgame.plugin
+import com.github.donghune.dimgame.util.syncTeleport
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.event.EventHandler
@@ -10,10 +11,6 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerJoinEvent
 
 abstract class AbstractDimGameManager : Listener {
-
-    init {
-        Bukkit.getPluginManager().registerEvents(this, plugin)
-    }
 
     @EventHandler
     fun onEntityDamageEvent(event: EntityDamageEvent) {
@@ -25,7 +22,7 @@ abstract class AbstractDimGameManager : Listener {
     @EventHandler
     fun onPlayerJoinEvent(event: PlayerJoinEvent) {
         if (gameState == GameStatus.NOT_PLAYING) {
-            event.player.teleport(lobbyLocation)
+            event.player.syncTeleport(lobbyLocation)
         }
     }
 
@@ -37,14 +34,14 @@ abstract class AbstractDimGameManager : Listener {
     lateinit var dimGameList: List<MiniGame<*, *>>
     lateinit var currentDimGame: MiniGame<*, *>
 
-    abstract fun onEnabled()
+    abstract suspend fun onEnabled()
 
-    abstract fun start()
+    abstract suspend fun start()
 
-    abstract fun stop()
+    abstract suspend fun stop()
 
-    abstract fun skip()
+    abstract suspend fun skip()
 
-    abstract fun startRound(countdownTime: Int)
+    abstract suspend fun startRound()
 
 }
